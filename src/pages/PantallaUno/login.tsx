@@ -1,9 +1,7 @@
 import { useState } from 'react';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  
-  // Le agregamos el tipo de dato a la "e"
+  const [email, setEmail] = useState('')
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log("Enviando los datos...");
@@ -12,8 +10,10 @@ export default function Login() {
   return (
     <div>
       <h1>Iniciar Sesión</h1>
-      <input type="email" onChange={(e) => setEmail(e.target.value)} />
-      <button onClick={handleSubmit}>Ingresar</button>
+      <input className = "mail"    type="email" onChange={(e) => setEmail(e.target.value)} />
+      <input type="password" className = "contraseña" />
+      <button onClick={handleSubmit}>Ingresar</button>                
     </div>
-  );
+  );    
 }
+
