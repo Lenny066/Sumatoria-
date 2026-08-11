@@ -1,20 +1,18 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home/home";
-import Login from "./pages/Login/login";
-
+import Login from "./pages/LoginUsuario/login";
+import pantallauno from "./pages/PantallaUno/pantallauno";
+import Pantallauno from "./pages/PantallaUno/pantallauno";
 
 export default function App() {
     return (
       <BrowserRouter>
         <nav>
-          <Link to="/">Inicio</Link> 
-          <Link to="/about">Sobre Nosotros</Link>
         </nav>
 
 
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login /> }/>
+          <Route path="/login" element={<Login/> }/>
+          <Route path="/pantallauno" element={<Pantallauno/> }/>
         </Routes>
       </BrowserRouter>
     );
