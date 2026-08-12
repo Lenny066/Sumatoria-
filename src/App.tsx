@@ -1,19 +1,14 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/LoginUsuario/login";
-import pantallauno from "./pages/PantallaUno/pantallauno";
-import Pantallauno from "./pages/PantallaUno/pantallauno";
+import PantallaUno from "./pages/PantallaUno/pantallauno";
 
 export default function App() {
-    return (
-      <BrowserRouter>
-        <nav>
-        </nav>
-
-
-        <Routes>
-          <Route path="/login" element={<Login/> }/>
-          <Route path="/pantallauno" element={<Pantallauno/> }/>
-        </Routes>
-      </BrowserRouter>
-    );
-  }
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<PantallaUno />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
