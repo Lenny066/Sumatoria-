@@ -1,5 +1,3 @@
-//@ts-ignore
-
 import logoSvg from "../assets/logo.svg";
 
 export default function Logo() {
