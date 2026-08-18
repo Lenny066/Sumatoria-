@@ -7,36 +7,56 @@
 html, body {
   width: 100%;
   min-height: 100vh;
-  background-color: #1d1052; 
+  background-color: #2A1A5E; 
 }
 
 .container {
-  background-color: #2D1660;
+  background-color: #2A1A5E;
   color: #FFFFFF;
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-family: sans-serif;
   padding: 5.33%;
   box-sizing: border-box;
   text-align: center;
+  /* enable absolutely-positioned footer elements relative to this area */
+  position: relative;
 }
 
 .title {
   font-size: 150%;
   font-weight: bold;
-  margin-bottom: 4.26%;
+  /* keep the title's flow spacing but visually nudge it down without affecting following elements */
+  margin-top: 24vh;
+  margin-bottom: 1rem;
   line-height: 1.2;
+  /* translateY moves the title visually but does not change layout, so the description won't shift */
+  transform: translateY(2vh);
 }
 
 .description {
   font-size: 100%;
   color: #A3A3A3;
-  margin-bottom: 10.67%;
+  /* increase gap under the title so the description sits lower */
+  margin-top: 2rem;
   line-height: 1.5;
   max-width: 85.33%;
+}
+
+/* Logo: common selectors in case markup varies between implementations */
+.logo,
+.header-logo,
+.container > img.logo,
+.container img[alt*="logo"],
+/* Specific selector for the Logo component which renders <img alt="Sumatoria"> */
+.container > img[alt="Sumatoria"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  /* nudge the logo down from the top */
+  margin-top: 9vh; /* subir un poco */
 }
 
 /* Botón Siguiente */
@@ -44,15 +64,19 @@ html, body {
   background-color: #00D16B;
   color: #FFFFFF;
   border: none;
-  border-radius: 4%;
-  padding: 4.26% 8.53%;
+  /* rounded pill similar to reference */
+  border-radius: 12px;
+  padding: 14px 20px;
   font-size: 100%;
   font-weight: bold;
   cursor: pointer;
-  width: 100%;
-  max-width: 80%;
-  margin-top: auto;
-  margin-bottom: -65%;
+  width: 90%;
+  max-width: 640px;
+  /* pin the primary button near the bottom of the container */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 60px;
   transition: background-color 0.2s ease;
 }
 
@@ -67,9 +91,12 @@ html, body {
   border: none;
   font-size: 100%;
   cursor: pointer;
-  padding: 2.13% 4.26%;
-  margin-top: auto; 
-  margin-bottom: 5.33%; 
+  padding: 8px 12px;
+  /* pin the skip button below the primary button */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
 }
 .btn-saltear:hover {
   text-decoration: underline;
@@ -80,8 +107,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px; 
-  margin-bottom: 8.53%;
+  gap: 9px;
+  /* pin the dots a bit above the primary button */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 135px;
 }
 
 .dot {
