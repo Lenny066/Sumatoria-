@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
+import Barra from '../components/barra';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -36,27 +36,24 @@ export default function Mapa(): React.JSX.Element {
   }
 
   return (
-   
     <div 
       style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        width: '100%', 
+        position: 'relative',
+        width: '100vw', 
         height: '100vh', 
-        padding: 0
+        overflow: 'hidden'
       }}
     >
-      {}
+      {/* Contenedor del Mapa */}
       <div 
         style={{ 
-        height: '80vh',
-        width: '100%',
-        maxWidth: '100%',
-        borderRadius: '0',
-        boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.15)',
-        overflow: 'hidden',
-        transform: 'translateY(20px)'
+          position: 'absolute',
+          top: '50px',
+          bottom: '60px',
+          left: 0,
+          right: 0,
+          boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.15)',
+          overflow: 'hidden'
         }}
       >
         <MapContainer 
@@ -78,6 +75,8 @@ export default function Mapa(): React.JSX.Element {
           </Marker>
         </MapContainer>
       </div>
+
+      <Barra />
     </div>
   );
 }
