@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/LoginUsuario/login";
 import PantallaUno from "./pages/PantallaUno/pantallauno";
-import Mapa from "./mapa";
+import Mapa from "./pages/mapa";
 
 export default function App() {
   return (
