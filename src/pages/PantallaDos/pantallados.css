@@ -1,0 +1,106 @@
+
+
+.contenedor-dos {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5.33%;
+  box-sizing: border-box;
+  text-align: center;
+  background-color: #2A1A5E;
+  color: #FFFFFF;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.contenedor-dos * {
+  box-sizing: border-box;
+}
+
+.titulo-dos {
+  margin: 20vh 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+  color: #FFFFFF;
+}
+
+.descripcion-dos {
+  margin: 1rem 0 0;
+  max-width: 76%;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #A3A3A3;
+}
+
+/* Puntos de paginación: el activo es el del medio */
+.contenedor-dos .pagination-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 133px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.contenedor-dos .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6A5F8E;
+  transition: background-color 0.2s ease;
+}
+
+.contenedor-dos .dot.active {
+  background-color: #4FBD7A;
+}
+
+/* Botón Siguiente */
+.contenedor-dos .btn-siguiente {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 68px;
+  width: 85.6%;
+  max-width: 640px;
+  height: 45px;
+  border: none;
+  border-radius: 10px;
+  background-color: #22B24A;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.contenedor-dos .btn-siguiente:hover {
+  background-color: #1c9a3f;
+}
+
+/* Botón Saltear */
+.contenedor-dos .btn-saltear {
+  background-color: transparent;
+  color: #FFFFFF;
+  border: none;
+  font-size: 100%;
+  cursor: pointer;
+  padding: 8px 12px;
+  /* pin the skip button below the primary button */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+}
+
+.contenedor-dos .btn-saltear:hover {
+  text-decoration: underline;
+}

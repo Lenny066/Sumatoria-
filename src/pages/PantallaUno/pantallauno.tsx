@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import BotonSiguiente from "../../components/BotonSiguiente";
 import BotonSaltear from "../../components/BotonSaltear";
 import PuntosPaginacion from "../../components/PuntosPaginacion";
@@ -6,16 +6,14 @@ import Logo from "../../components/Logo";
 import "./pantallauno.css";
 
 export default function PantallaUno() {
-  const [paginaActual, setPaginaActual] = useState<number>(0);
+  const navigate = useNavigate();
 
   const handleSiguiente = (): void => {
-    if (paginaActual < 2) {
-      setPaginaActual((prev) => prev + 1);
-    }
+    navigate("/pantalla-dos");
   };
 
   const handleSaltear = (): void => {
-    console.log('Onboarding omitido');
+    navigate("/login");
   };
 
   return (
@@ -30,7 +28,7 @@ export default function PantallaUno() {
         Encontrá descuentos de comercios y bancos en gastronomía, indumentaria, supermercados y más.
       </p>
 
-      <PuntosPaginacion total={3} activo={paginaActual} />
+      <PuntosPaginacion total={3} activo={0} />
       <BotonSiguiente onClick={handleSiguiente} />
       <BotonSaltear onClick={handleSaltear} />
     </div>

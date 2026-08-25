@@ -5,13 +5,17 @@ export default function Logo() {
     <img
       src={logoImg}
       alt="Sumatoria"
-      style={{ 
-        width: "22.5rem",       
-        height: "auto",        
+      style={{
+        /* Nunca más ancho que el contenedor: si se pasa, se desborda
+           y deja de verse centrado. */
+        width: "min(22.5rem, 100%)",
+        maxWidth: "100%",
+        height: "auto",
         objectFit: "contain",
         display: "block",
+        alignSelf: "center",
         margin: "0 auto",
-        marginTop: "3rem"        
+        marginTop: "3rem"
       }}
     />
   );

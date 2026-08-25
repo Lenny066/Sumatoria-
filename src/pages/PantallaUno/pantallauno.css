@@ -61,27 +61,26 @@ html, body {
 
 /* Botón Siguiente */
 .btn-siguiente {
-  background-color: #00D16B;
-  color: #FFFFFF;
-  border: none;
-  /* rounded pill similar to reference */
-  border-radius: 12px;
-  padding: 14px 20px;
-  font-size: 100%;
-  font-weight: bold;
-  cursor: pointer;
-  width: 90%;
-  max-width: 640px;
-  /* pin the primary button near the bottom of the container */
-  position: absolute;
+   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 60px;
+  bottom: 68px;
+  width: 85.6%;
+  max-width: 640px;
+  height: 45px;
+  border: none;
+  border-radius: 10px;
+  background-color: #22B24A;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .btn-siguiente:hover {
-  background-color: #00b85e;
+  background-color: #1c9a3f;
 }
 
 /* Botón Saltear */
@@ -124,5 +123,5 @@ html, body {
 }
 
 .dot.active {
-  background-color: #00D16B;
+  background-color: #22B24A;
 }
