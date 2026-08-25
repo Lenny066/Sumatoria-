@@ -1,0 +1,107 @@
+/* Cabecera del mapa: título, buscador y fila de filtros.
+   Sólo presentación: ningún botón de este bloque tiene comportamiento. */
+
+.buscador {
+  background-color: #2a1a5e;
+  padding: 14px 16px 18px;
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  flex-shrink: 0;
+}
+
+.buscador__titulo {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  color: #ffffff;
+}
+
+.buscador__subtitulo {
+  margin: 5px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: #b9afd4;
+}
+
+/* Pill blanca del input */
+.buscador__campo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  margin-top: 14px;
+  padding: 0 16px;
+  background-color: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(15, 6, 40, 0.18);
+}
+
+.buscador__lupa {
+  flex-shrink: 0;
+  color: #8e8899;
+}
+
+.buscador__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  color: #2a1a5e;
+}
+
+.buscador__input::placeholder {
+  color: #9a94a8;
+}
+
+/* Fila de filtros: flota sobre el mapa (sin banda de fondo),
+   con scroll horizontal y sin barra visible. */
+.buscador__filtros {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.buscador__filtros::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 999px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 6, 40, 0.16);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  color: #2a1a5e;
+  cursor: pointer;
+}
+
+.chip__icono {
+  display: flex;
+  flex-shrink: 0;
+}

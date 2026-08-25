@@ -3,8 +3,10 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Barra from '../components/barra';
+import BuscadorMapa, { FiltrosMapa } from '../components/BuscadorMapa';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import './mapa.css';
 
 const customIcon: L.Icon = L.icon({
   iconUrl: markerIcon,
@@ -36,31 +38,13 @@ export default function Mapa(): React.JSX.Element {
   }
 
   return (
-    <div 
-      style={{ 
-        position: 'relative',
-        width: '100vw', 
-        height: '100vh', 
-        overflow: 'hidden'
-      }}
-    >
-      {/* Contenedor del Mapa */}
-      <div 
-        style={{ 
-          position: 'absolute',
-          top: '50px',
-          bottom: '60px',
-          left: 0,
-          right: 0,
-          boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.15)',
-          overflow: 'hidden'
-        }}
-      >
-        <MapContainer 
-          center={posicion} 
-          zoom={15} 
-          style={{ height: '100%', width: '100%' }}
-        >
+    <div className="mapa-pantalla">
+      <BuscadorMapa />
+
+      <div className="mapa-lienzo">
+        <FiltrosMapa />
+
+        <MapContainer center={posicion} zoom={15}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; OpenStreetMap'

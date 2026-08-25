@@ -1,0 +1,28 @@
+/* Layout de la pantalla del mapa: cabecera + mapa elástico + barra inferior.
+   El mapa toma el alto restante, así no hacen falta offsets fijos en px. */
+
+.mapa-pantalla {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #2a1a5e;
+}
+
+.mapa-lienzo {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+.mapa-lienzo .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Los controles de zoom bajan para no quedar tapados por los chips. */
+.mapa-lienzo .leaflet-top .leaflet-control {
+  margin-top: 66px;
+}
