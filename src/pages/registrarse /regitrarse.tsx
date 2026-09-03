@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import "./registrarse.css";
 
 export default function Registrarse() {
+  const navigate = useNavigate();
+
   return (
     <div className="contenedor-registro">
       <Logo />
@@ -14,7 +16,11 @@ export default function Registrarse() {
         <button type="button" className="tipo-cuenta tipo-cuenta-activo">
           Persona
         </button>
-        <button type="button" className="tipo-cuenta">
+        <button
+          type="button"
+          className="tipo-cuenta"
+          onClick={() => navigate("/cuenta-negocio")}
+        >
           Negocio
         </button>
       </div>
