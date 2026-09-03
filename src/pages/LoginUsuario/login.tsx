@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo from "../../components/Logo";
 import "./login.css";
 
@@ -38,7 +39,10 @@ export default function Login() {
       </form>
 
       <p className="texto-crear-cuenta">
-        ¿No tenés cuenta? <button type="button" className="link-crear-cuenta">Creá una</button>
+        ¿No tenés cuenta?{" "}
+        <Link to="/registrarse" className="link-crear-cuenta">
+          Creá una
+        </Link>
       </p>
 
       <button type="button" className="btn-sin-cuenta">
