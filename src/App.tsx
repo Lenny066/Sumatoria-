@@ -4,6 +4,7 @@ import PantallaUno from "./pages/PantallaUno/pantallauno";
 import PantallaDos from "./pages/PantallaDos/pantallados";
 import PantallaTres from "./pages/PantallaTres/pantallatres";
 import Mapa from "./pages/mapa";
+import Registrarse from "./pages/registrarse /regitrarse";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/pantalla-dos" element={<PantallaDos />} />
         <Route path="/pantalla-tres" element={<PantallaTres />} />
         <Route path="/mapa" element={<Mapa />} />
+        <Route path="/registrarse" element={<Registrarse />} />
       </Routes>
     </BrowserRouter>
   );
