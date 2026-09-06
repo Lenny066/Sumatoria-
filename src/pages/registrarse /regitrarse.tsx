@@ -1,9 +1,52 @@
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import "./registrarse.css";
 
+/* Punto único de contacto con el back-end.
+   Hoy devuelve true si los campos obligatorios están completos, para poder
+   probar el flujo sin el servidor. Cuando esté el endpoint, se reemplaza el
+   cuerpo por el fetch real y el resto de la pantalla no cambia. */
+async function crearCuenta(
+  nombre: string,
+  email: string,
+  password: string
+): Promise<boolean> {
+  return nombre.trim() !== "" && email.trim() !== "" && password.trim() !== "";
+}
+
 export default function Registrarse() {
   const navigate = useNavigate();
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [tarjeta, setTarjeta] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function manejarEnvio(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (nombre.trim() === "" || email.trim() === "" || password.trim() === "") {
+      setError("Completá tu nombre, tu email y tu contraseña.");
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      const ok = await crearCuenta(nombre, email, password);
+      if (ok) {
+        navigate("/inicio");
+      } else {
+        setError("No pudimos crear la cuenta con esos datos.");
+      }
+    } catch {
+      setError("No pudimos crear la cuenta. Probá de nuevo en un momento.");
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   return (
     <div className="contenedor-registro">
@@ -25,7 +68,7 @@ export default function Registrarse() {
         </button>
       </div>
 
-      <form className="formulario-registro" onSubmit={(e) => e.preventDefault()}>
+      <form className="formulario-registro" onSubmit={manejarEnvio}>
         <label className="etiqueta-registro" htmlFor="nombre">Nombre</label>
         <input
           className="campo-registro"
@@ -34,6 +77,8 @@ export default function Registrarse() {
           type="text"
           placeholder="Ej: Juana Pérez"
           autoComplete="name"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
         />
 
         <label className="etiqueta-registro" htmlFor="email">Email</label>
@@ -44,6 +89,8 @@ export default function Registrarse() {
           type="email"
           placeholder="tu@email.com"
           autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <label className="etiqueta-registro" htmlFor="password">Contraseña</label>
@@ -54,6 +101,8 @@ export default function Registrarse() {
           type="password"
           placeholder="••••••••"
           autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <hr className="separador-registro" />
@@ -70,10 +119,14 @@ export default function Registrarse() {
           name="tarjeta"
           type="text"
           placeholder="Banco emisor"
+          value={tarjeta}
+          onChange={(e) => setTarjeta(e.target.value)}
         />
 
-        <button type="submit" className="btn-crear-cuenta">
-          Crear cuenta
+        {error && <p className="error-registro">{error}</p>}
+
+        <button type="submit" className="btn-crear-cuenta" disabled={enviando}>
+          {enviando ? "Creando cuenta..." : "Crear cuenta"}
         </button>
       </form>
 

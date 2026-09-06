@@ -175,3 +175,15 @@
 .link-iniciar-sesion:hover {
   text-decoration: underline;
 }
+
+.error-registro {
+  margin: 0.6rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #ff8a8a;
+}
+
+.btn-crear-cuenta:disabled {
+  opacity: 0.7;
+  cursor: default;
+}

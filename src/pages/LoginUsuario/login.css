@@ -136,3 +136,15 @@ margin-left: -20%;
 .btn-sin-cuenta:hover {
   text-decoration: underline;
 }
+
+.error-login {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #ff8a8a;
+}
+
+.btn-iniciar-sesion:disabled {
+  opacity: 0.7;
+  cursor: default;
+}

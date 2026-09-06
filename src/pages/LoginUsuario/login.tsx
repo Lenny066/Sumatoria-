@@ -1,8 +1,47 @@
-import { Link } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import "./login.css";
 
+/* Punto único de contacto con el back-end.
+   Hoy devuelve true si los campos están completos, para poder probar el flujo
+   sin el servidor. Cuando esté el endpoint, se reemplaza el cuerpo por el
+   fetch real y el resto de la pantalla no cambia. */
+async function iniciarSesion(email: string, password: string): Promise<boolean> {
+  return email.trim() !== "" && password.trim() !== "";
+}
+
 export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function manejarEnvio(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (email.trim() === "" || password.trim() === "") {
+      setError("Completá tu email y tu contraseña.");
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      const ok = await iniciarSesion(email, password);
+      if (ok) {
+        navigate("/inicio");
+      } else {
+        setError("El email o la contraseña no son correctos.");
+      }
+    } catch {
+      setError("No pudimos iniciar sesión. Probá de nuevo en un momento.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   return (
     <div className="contenedor-login">
       <Logo />
@@ -10,7 +49,7 @@ export default function Login() {
       <h1 className="titulo-login">Iniciar sesión</h1>
       <p className="subtitulo-login">Entrá para ver y guardar tus promociones</p>
 
-      <form className="formulario-login" onSubmit={(e) => e.preventDefault()}>
+      <form className="formulario-login" onSubmit={manejarEnvio}>
         <label className="etiqueta-login" htmlFor="email">Email</label>
         <input
           className="campo-login"
@@ -19,6 +58,8 @@ export default function Login() {
           type="email"
           placeholder="tu@email.com"
           autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <label className="etiqueta-login" htmlFor="password">Contraseña</label>
@@ -29,12 +70,14 @@ export default function Login() {
           type="password"
           placeholder="••••••••"
           autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        
+        {error && <p className="error-login">{error}</p>}
 
-        <button type="submit" className="btn-iniciar-sesion">
-          Iniciar sesión
+        <button type="submit" className="btn-iniciar-sesion" disabled={enviando}>
+          {enviando ? "Entrando..." : "Iniciar sesión"}
         </button>
       </form>
 
@@ -45,7 +88,11 @@ export default function Login() {
         </Link>
       </p>
 
-      <button type="button" className="btn-sin-cuenta">
+      <button
+        type="button"
+        className="btn-sin-cuenta"
+        onClick={() => navigate("/inicio")}
+      >
         Continuar sin cuenta
       </button>
     </div>

@@ -6,6 +6,7 @@ import PantallaTres from "./pages/PantallaTres/pantallatres";
 import Mapa from "./pages/mapa";
 import Registrarse from "./pages/registrarse /regitrarse";
 import CuentaNegocio from "./pages/CuentaNegocio/cuentanegocio";
+import Inicio from "./pages/inicio/inicio";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/mapa" element={<Mapa />} />
         <Route path="/registrarse" element={<Registrarse />} />
         <Route path="/cuenta-negocio" element={<CuentaNegocio />} />
+        <Route path="/inicio" element={<Inicio />} />
       </Routes>
     </BrowserRouter>
   );
