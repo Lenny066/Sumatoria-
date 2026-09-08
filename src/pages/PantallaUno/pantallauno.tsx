@@ -23,7 +23,7 @@ export default function PantallaUno() {
       <h1 className="title">
         Descubrí promociones cerca tuyo
       </h1>
-      
+
       <p className="description">
         Encontrá descuentos de comercios y bancos en gastronomía, indumentaria, supermercados y más.
       </p>

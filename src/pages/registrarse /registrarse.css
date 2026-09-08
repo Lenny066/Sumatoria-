@@ -1,12 +1,10 @@
 .contenedor-registro {
-  /* Escala de espaciado fluida: el aire se calcula con vh con topes bajos,
-     así el bloque respira sin estirarse a toda la pantalla ni amontonarse
-     en las pantallas cortas. */
+
   --esp-xs: clamp(0.2rem, 0.55vh, 0.4rem);
   --esp-sm: clamp(0.35rem, 0.9vh, 0.75rem);
   --esp-md: clamp(0.5rem, 1.45vh, 1.1rem);
   --esp-lg: clamp(0.8rem, 2.2vh, 1.7rem);
-  /* Aire extra entre el logo y el título (se suma al gap del contenedor). */
+
   --esp-logo: clamp(0.7rem, 2.3vh, 1.8rem);
   --ancho-contenido: min(100%, 26rem);
 
@@ -18,7 +16,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--esp-md);
-  /* Arriba más que abajo: corre todo el bloque hacia el centro-bajo. */
+
   padding: clamp(1.2rem, 3.6vh, 2.8rem) 5.33% clamp(1rem, 2.4vh, 2rem);
   padding-bottom: calc(clamp(1rem, 2.4vh, 2rem) + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -49,7 +47,7 @@
 
 .subtitulo-registro {
   width: var(--ancho-contenido);
-  /* Pegado al título: son un mismo bloque, el gap del contenedor los separaría. */
+
   margin: calc(var(--esp-xs) - var(--esp-md)) 0 0;
   font-size: clamp(0.85rem, 2vh, 0.95rem);
   font-weight: 400;
@@ -101,7 +99,7 @@
 .campo-registro {
   width: 100%;
   height: clamp(38px, 5vh, 46px);
-  /* Separación entre un campo y la etiqueta del siguiente. */
+
   margin-bottom: var(--esp-md);
   padding: 0 0.9rem;
   border: none;

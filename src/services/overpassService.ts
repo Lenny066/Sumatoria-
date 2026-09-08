@@ -15,16 +15,14 @@ const CABA_BBOX = {
   east: -58.335,
 };
 
-
 const OVERPASS_MIRRORS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
   'https://overpass.openstreetmap.ru/api/interpreter',
 ];
 
-
 const CACHE_KEY = 'sumatoria_locales_caba';
-const CACHE_DURACION_MS = 1000 * 60 * 60 * 24 * 7; 
+const CACHE_DURACION_MS = 1000 * 60 * 60 * 24 * 7;
 
 const AMENITIES_GASTRONOMIA = [
   'restaurant',
@@ -101,7 +99,7 @@ function guardarCache(datos: Local[]): void {
       JSON.stringify({ timestamp: Date.now(), datos })
     );
   } catch {
-    // Si localStorage está lleno o bloqueado, seguimos sin caché
+    return;
   }
 }
 
@@ -109,10 +107,6 @@ function esperar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Intenta pedir los datos a un servidor Overpass puntual.
- * Si responde 429, espera y reintenta un par de veces antes de darse por vencido.
- */
 async function pedirAOverpass(url: string, query: string): Promise<any> {
   const MAX_INTENTOS = 3;
 
@@ -127,7 +121,7 @@ async function pedirAOverpass(url: string, query: string): Promise<any> {
     }
 
     if (res.status === 429 && intento < MAX_INTENTOS) {
-      // Espera creciente: 3s, luego 6s, antes de reintentar
+
       await esperar(3000 * intento);
       continue;
     }
@@ -138,9 +132,6 @@ async function pedirAOverpass(url: string, query: string): Promise<any> {
   throw new Error(`Overpass (${url}) siguió respondiendo 429 tras reintentar`);
 }
 
-/**
- * Prueba los servidores espejo en orden hasta que alguno responda bien.
- */
 async function pedirConMirrors(query: string): Promise<any> {
   let ultimoError: unknown;
 
@@ -149,7 +140,7 @@ async function pedirConMirrors(query: string): Promise<any> {
       return await pedirAOverpass(mirror, query);
     } catch (err) {
       ultimoError = err;
-      // probamos el siguiente mirror
+
     }
   }
 
@@ -170,7 +161,7 @@ export async function fetchLocalesCABA(forzarActualizacion = false): Promise<Loc
     guardarCache(locales);
     return locales;
   } catch (err) {
- 
+
     const cacheados = leerCache();
     if (cacheados) return cacheados;
     throw err;

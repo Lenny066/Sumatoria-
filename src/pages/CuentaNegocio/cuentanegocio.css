@@ -1,4 +1,3 @@
-/* Esta pantalla sí scrollea: el espaciado es fijo, no depende de la altura. */
 .contenedor-negocio {
   --ancho-contenido: min(100%, 26rem);
 
@@ -108,7 +107,6 @@
   outline-offset: 1px;
 }
 
-/* Flecha propia: la nativa del <select> no se puede pintar. */
 .select-negocio {
   appearance: none;
   -webkit-appearance: none;
@@ -176,7 +174,7 @@
 
 .fila-horario {
   display: grid;
-  /* día | casilla "Abierto" | desde | "a" | hasta */
+
   grid-template-columns: minmax(4.4rem, auto) auto minmax(4.3rem, 1fr) auto minmax(4.3rem, 1fr);
   align-items: center;
   gap: 0.45rem;
@@ -238,10 +236,6 @@
   text-align: center;
 }
 
-/* El reloj nativo de WebKit ocupa ancho dentro del campo y termina cortando
-   la hora. En vez de ocultarlo (perderíamos la lista de horarios), lo sacamos
-   del flujo y lo estiramos invisible sobre todo el input: no roba espacio y
-   tocar cualquier parte del campo abre el selector. */
 .campo-hora::-webkit-calendar-picker-indicator {
   position: absolute;
   inset: 0;

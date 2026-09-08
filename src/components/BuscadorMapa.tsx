@@ -2,7 +2,6 @@ import React from 'react';
 import { Search, MapPin, Clock, Star } from 'lucide-react';
 import './buscadormapa.css';
 
-/* Filtros de la fila superior. Sólo maqueta: no filtran nada todavía. */
 const filtros = [
   { etiqueta: 'Filtros', icono: null },
   { etiqueta: 'Cerca mío', icono: <MapPin size={14} color="#e5484d" strokeWidth={2.4} /> },
@@ -10,8 +9,6 @@ const filtros = [
   { etiqueta: 'Mejor puntuados', icono: <Star size={14} color="#f5b301" fill="#f5b301" strokeWidth={1.6} /> },
 ];
 
-/* Fila de chips. Va dentro del lienzo del mapa para que flote encima
-   y no corte la pantalla con una banda de fondo. */
 export const FiltrosMapa: React.FC = () => {
   return (
     <div className="buscador__filtros">

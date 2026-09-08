@@ -1,5 +1,3 @@
-/* Barra de navegación inferior. Sólo presentación: los botones no navegan. */
-
 .barra {
   display: flex;
   justify-content: space-around;
@@ -28,7 +26,6 @@
   color: #bdb4d8;
 }
 
-/* Caja fija para el ícono: alinea todas las etiquetas en la misma línea */
 .barra__icono {
   display: flex;
   align-items: center;
@@ -51,8 +48,6 @@
   font-weight: 700;
 }
 
-/* Botón central sobresaliente. El margen negativo lo sube sin romper
-   la alineación de las etiquetas (aporta los mismos 26px que .barra__icono). */
 .barra__circulo {
   display: flex;
   align-items: center;
@@ -67,7 +62,6 @@
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
 }
 
-/* Ítems que todavía no tienen pantalla: se ven, pero no responden. */
 .barra__item:disabled {
   cursor: default;
   opacity: 0.55;

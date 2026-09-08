@@ -3,9 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, MapPin, Bookmark, User } from 'lucide-react';
 import './barra.css';
 
-/* Barra de navegación inferior.
-   Los ítems con `ruta` navegan; los que todavía no tienen pantalla quedan
-   deshabilitados hasta que exista. El ítem activo se deduce de la URL. */
 type ItemBarra = {
   id: string;
   etiqueta: string;
@@ -18,7 +15,7 @@ const ITEMS: ItemBarra[] = [
   { id: 'inicio', etiqueta: 'Inicio', icono: Home, ruta: '/inicio' },
   { id: 'buscar', etiqueta: 'Buscar', icono: Search, ruta: null },
   { id: 'cerca', etiqueta: 'Mapa', icono: MapPin, ruta: '/mapa', central: true },
-  { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: null },
+  { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: '/favoritos' },
   { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: null },
 ];
 

@@ -5,7 +5,6 @@ import PuntosPaginacion from "../../components/PuntosPaginacion";
 import Logo from "../../components/Logo";
 import "./pantallados.css";
 
-
 export default function PantallaDos() {
   const navigate = useNavigate();
 

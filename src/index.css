@@ -1,7 +1,3 @@
-/* Reset mínimo compartido por todas las pantallas.
-   Sin esto el navegador deja 8px de margen en <body> y las pantallas
-   a pantalla completa (mapa, inicio) quedan corridas y con scroll lateral. */
-
 * {
   box-sizing: border-box;
 }

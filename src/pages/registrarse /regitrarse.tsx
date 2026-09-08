@@ -3,10 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import "./registrarse.css";
 
-/* Punto único de contacto con el back-end.
-   Hoy devuelve true si los campos obligatorios están completos, para poder
-   probar el flujo sin el servidor. Cuando esté el endpoint, se reemplaza el
-   cuerpo por el fetch real y el resto de la pantalla no cambia. */
 async function crearCuenta(
   nombre: string,
   email: string,

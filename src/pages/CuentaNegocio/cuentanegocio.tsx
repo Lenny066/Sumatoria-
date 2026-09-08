@@ -35,7 +35,6 @@ export default function CuentaNegocio() {
   const [horarios, setHorarios] = useState<Horario[]>(HORARIOS_INICIALES);
   const [nombreLogo, setNombreLogo] = useState<string | null>(null);
 
-  /* Actualiza un solo día sin tocar los demás. */
   function actualizarHorario(indice: number, cambios: Partial<Horario>) {
     setHorarios((previos) =>
       previos.map((horario, i) =>
@@ -79,7 +78,6 @@ export default function CuentaNegocio() {
           placeholder="Ej: Panadería Norte"
         />
 
-        {/* Solo un campo de texto: por ahora no resuelve la ubicación real. */}
         <label className="etiqueta-negocio" htmlFor="direccion">
           Dirección
         </label>

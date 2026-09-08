@@ -7,6 +7,7 @@ import Mapa from "./pages/mapa";
 import Registrarse from "./pages/registrarse /regitrarse";
 import CuentaNegocio from "./pages/CuentaNegocio/cuentanegocio";
 import Inicio from "./pages/inicio/inicio";
+import Favoritos from "./pages/favoritos/favoritos";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/registrarse" element={<Registrarse />} />
         <Route path="/cuenta-negocio" element={<CuentaNegocio />} />
         <Route path="/inicio" element={<Inicio />} />
+        <Route path="/favoritos" element={<Favoritos />} />
       </Routes>
     </BrowserRouter>
   );

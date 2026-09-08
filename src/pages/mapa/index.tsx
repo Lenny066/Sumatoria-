@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useState, useEffect, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MapPin } from 'lucide-react';
 import Barra from '../../components/barra';
 import BuscadorMapa, { FiltrosMapa } from '../../components/BuscadorMapa';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -18,17 +19,19 @@ const customIcon: L.Icon = L.icon({
   iconAnchor: [12, 41]
 });
 
-// Bounding box aproximado de Argentina (suroeste y noreste)
 const ARGENTINA_BOUNDS: L.LatLngBoundsExpression = [
   [-55.2, -73.6],
   [-21.7, -53.6],
 ];
 
-// Un ícono de color distinto por tipo de local, para diferenciarlos de un vistazo
+const CENTRO_POR_DEFECTO: [number, number] = [-34.6037, -58.3816];
+const ZOOM_POR_DEFECTO = 12;
+const ZOOM_UBICADO = 15;
+
 const COLORES_POR_TIPO: Record<Local['tipo'], string> = {
-  gastronomia: '#e67e22', // naranja
-  ropa: '#9b59b6',        // violeta
-  otro: '#3498db',        // azul
+  gastronomia: '#e67e22',
+  ropa: '#9b59b6',
+  otro: '#3498db',
 };
 
 function crearIconoLocal(tipo: Local['tipo']): L.DivIcon {
@@ -48,22 +51,85 @@ function crearIconoLocal(tipo: Local['tipo']): L.DivIcon {
   });
 }
 
+function CentrarEnPosicion({ posicion }: { posicion: [number, number] | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (posicion) {
+      map.flyTo(posicion, ZOOM_UBICADO);
+    }
+  }, [map, posicion]);
+
+  return null;
+}
+
+type EstadoUbicacion = 'inactiva' | 'cargando' | 'activa' | 'error';
+
+function mensajeDeError(error: GeolocationPositionError): string {
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      return 'Bloqueaste el permiso de ubicación. Habilitalo desde la configuración del navegador para ver los locales cerca tuyo.';
+    case error.POSITION_UNAVAILABLE:
+      return 'No pudimos obtener tu ubicación. Fijate que tengas el GPS prendido.';
+    case error.TIMEOUT:
+      return 'La ubicación tardó demasiado. Probá de nuevo.';
+    default:
+      return 'No pudimos obtener tu ubicación. Probá de nuevo en un momento.';
+  }
+}
+
 export default function Mapa(): React.JSX.Element {
   const [posicion, setPosicion] = useState<[number, number] | null>(null);
+  const [estado, setEstado] = useState<EstadoUbicacion>('inactiva');
+  const [errorUbicacion, setErrorUbicacion] = useState<string | null>(null);
   const [locales, setLocales] = useState<Local[]>([]);
   const [cargandoLocales, setCargandoLocales] = useState(true);
   const [errorLocales, setErrorLocales] = useState<string | null>(null);
 
-  useEffect(() => {
+  const activarUbicacion = useCallback(() => {
+    setErrorUbicacion(null);
+
+    if (!('geolocation' in navigator)) {
+      setEstado('error');
+      setErrorUbicacion(
+        'Tu navegador no puede compartir la ubicación. Probá abrir la app con https.'
+      );
+      return;
+    }
+
+    setEstado('cargando');
     navigator.geolocation.getCurrentPosition(
       (pos: GeolocationPosition) => {
         setPosicion([pos.coords.latitude, pos.coords.longitude]);
+        setEstado('activa');
       },
       (error: GeolocationPositionError) => {
-        console.error("Error al obtener la ubicación:", error.message);
-      }
+        console.error('Error al obtener la ubicación:', error.message);
+        setEstado('error');
+        setErrorUbicacion(mensajeDeError(error));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    if (!navigator.permissions?.query) return;
+
+    navigator.permissions
+      .query({ name: 'geolocation' as PermissionName })
+      .then((permiso) => {
+        if (!cancelado && permiso.state === 'granted') {
+          activarUbicacion();
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelado = true;
+    };
+  }, [activarUbicacion]);
 
   useEffect(() => {
     fetchLocalesCABA()
@@ -75,13 +141,7 @@ export default function Mapa(): React.JSX.Element {
       .finally(() => setCargandoLocales(false));
   }, []);
 
-  if (!posicion) {
-    return (
-      <p style={{ textAlign: 'center', marginTop: '3rem', fontSize: '1.2rem' }}>
-        Obteniendo tu ubicación para cargar ofertas cercanas...
-      </p>
-    );
-  }
+  const mostrarInvitacion = estado !== 'activa';
 
   return (
     <div className="mapa-pantalla">
@@ -91,14 +151,12 @@ export default function Mapa(): React.JSX.Element {
         <FiltrosMapa />
 
         {errorLocales && (
-          <p style={{ textAlign: 'center', color: '#c0392b', fontSize: '0.85rem' }}>
-            {errorLocales}
-          </p>
+          <p className="mapa-error-locales">{errorLocales}</p>
         )}
 
         <MapContainer
-          center={posicion}
-          zoom={15}
+          center={CENTRO_POR_DEFECTO}
+          zoom={ZOOM_POR_DEFECTO}
           minZoom={5}
           maxBounds={ARGENTINA_BOUNDS}
           maxBoundsViscosity={1.0}
@@ -108,14 +166,18 @@ export default function Mapa(): React.JSX.Element {
             attribution='&copy; OpenStreetMap'
           />
 
-          <Marker position={posicion} icon={customIcon}>
-            <Popup>
-              <div style={{ textAlign: 'center', fontSize: '0.95rem' }}>
-                <b>📍 Estás aquí</b><br />
-                Buscando promociones a tu alrededor.
-              </div>
-            </Popup>
-          </Marker>
+          <CentrarEnPosicion posicion={posicion} />
+
+          {posicion && (
+            <Marker position={posicion} icon={customIcon}>
+              <Popup>
+                <div style={{ textAlign: 'center', fontSize: '0.95rem' }}>
+                  <b>📍 Estás aquí</b><br />
+                  Buscando promociones a tu alrededor.
+                </div>
+              </Popup>
+            </Marker>
+          )}
 
           {!cargandoLocales && (
             <MarkerClusterGroup chunkedLoading>
@@ -142,6 +204,34 @@ export default function Mapa(): React.JSX.Element {
             </MarkerClusterGroup>
           )}
         </MapContainer>
+
+        {mostrarInvitacion && (
+          <div className="geo">
+            <div className="geo__contenido">
+              <p className="geo__texto">
+                Activá tu ubicación para ver los
+                <br />
+                locales cerca tuyo en el mapa
+              </p>
+
+              {errorUbicacion && <p className="geo__error">{errorUbicacion}</p>}
+
+              <button
+                type="button"
+                className="geo__boton"
+                onClick={activarUbicacion}
+                disabled={estado === 'cargando'}
+              >
+                <MapPin size={18} strokeWidth={2.3} />
+                {estado === 'cargando'
+                  ? 'Buscándote...'
+                  : estado === 'error'
+                    ? 'Reintentar'
+                    : 'Activar ubicación'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <Barra />

@@ -5,7 +5,6 @@ import PuntosPaginacion from "../../components/PuntosPaginacion";
 import Logo from "../../components/Logo";
 import "./pantallatres.css";
 
-
 export default function PantallaTres() {
   const navigate = useNavigate();
 

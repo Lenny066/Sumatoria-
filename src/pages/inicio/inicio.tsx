@@ -20,8 +20,6 @@ import {
 import Barra from '../../components/barra';
 import './inicio.css';
 
-/* Filtros por rubro. Todavía no filtran nada porque no hay promociones
-   cargadas: por ahora sólo se marca cuál está elegido. */
 const CATEGORIAS = [
   { id: 'todos', etiqueta: 'Todos', icono: Star },
   { id: 'gastronomia', etiqueta: 'Gastronomía', icono: UtensilsCrossed },
@@ -30,9 +28,6 @@ const CATEGORIAS = [
   { id: 'supermercados', etiqueta: 'Supermercados', icono: ShoppingCart },
 ] as const;
 
-/* Las cuatro secciones de promociones. Hoy no hay data real, así que cada
-   una muestra su estado vacío. Cuando el back devuelva promos, se reemplaza
-   el estado vacío por la lista de tarjetas y el resto queda igual. */
 const SECCIONES = [
   {
     id: 'hot',
@@ -105,8 +100,6 @@ export default function Inicio(): React.JSX.Element {
             />
           </div>
 
-          {/* Depende de los canjes reales del usuario. Sin data se muestra en
-              $0 con una bajada que explica cómo se empieza a completar. */}
           <section className="tarjeta-ahorro">
             <p className="tarjeta-ahorro__rotulo">Ahorraste este mes</p>
             <p className="tarjeta-ahorro__monto">$0</p>
@@ -115,7 +108,6 @@ export default function Inicio(): React.JSX.Element {
             </p>
           </section>
 
-          {/* CTA fijo de producto: no depende de que haya promociones. */}
           <section className="tarjeta-banco">
             <div className="tarjeta-banco__texto">
               <h2 className="tarjeta-banco__titulo">
