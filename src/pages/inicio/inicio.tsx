@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MapPin,
   ChevronDown,
@@ -68,6 +69,8 @@ const SECCIONES = [
 ] as const;
 
 export default function Inicio(): React.JSX.Element {
+  const navigate = useNavigate();
+
   const [categoria, setCategoria] = useState<string>('todos');
 
   return (
@@ -110,20 +113,24 @@ export default function Inicio(): React.JSX.Element {
             </p>
           </section>
 
-          <section className="tarjeta-banco">
+          <button
+            type="button"
+            className="tarjeta-banco"
+            onClick={() => navigate('/agregar-tarjeta')}
+          >
             <div className="tarjeta-banco__texto">
-              <h2 className="tarjeta-banco__titulo">
+              <span className="tarjeta-banco__titulo">
                 <Lock size={14} strokeWidth={2.4} />
                 Nuevo en Sumatoria
-              </h2>
-              <p className="tarjeta-banco__bajada">
+              </span>
+              <span className="tarjeta-banco__bajada">
                 Sumá tu tarjeta y descubrí promos bancarias exclusivas
-              </p>
+              </span>
             </div>
             <span className="tarjeta-banco__icono">
               <CreditCard size={19} strokeWidth={2} />
             </span>
-          </section>
+          </button>
         </div>
 
         <main className="inicio__cuerpo">

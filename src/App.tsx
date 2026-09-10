@@ -9,6 +9,7 @@ import CuentaNegocio from "./pages/CuentaNegocio/cuentanegocio";
 import Inicio from "./pages/inicio/inicio";
 import Favoritos from "./pages/favoritos/favoritos";
 import IA from "./pages/IA/IA";
+import Tarjetas from "./pages/tarjetas/tarjetas";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/ia" element={<IA />} />
+        <Route path="/agregar-tarjeta" element={<Tarjetas />} />
       </Routes>
     </BrowserRouter>
   );
