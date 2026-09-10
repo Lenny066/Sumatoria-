@@ -8,6 +8,7 @@ import Registrarse from "./pages/registrarse /regitrarse";
 import CuentaNegocio from "./pages/CuentaNegocio/cuentanegocio";
 import Inicio from "./pages/inicio/inicio";
 import Favoritos from "./pages/favoritos/favoritos";
+import IA from "./pages/IA/IA";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/cuenta-negocio" element={<CuentaNegocio />} />
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/favoritos" element={<Favoritos />} />
+        <Route path="/ia" element={<IA />} />
       </Routes>
     </BrowserRouter>
   );

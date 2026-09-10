@@ -72,34 +72,36 @@ export default function Inicio(): React.JSX.Element {
 
   return (
     <div className="inicio">
-      <div className="inicio__scroll">
-        <header className="inicio__cabecera">
-          <div className="inicio__fila-superior">
-            <button type="button" className="inicio__ubicacion">
-              <MapPin size={15} strokeWidth={2.2} />
-              Activar ubicación
-              <ChevronDown size={15} strokeWidth={2.2} />
+      <header className="inicio__cabecera">
+        <div className="inicio__fila-superior">
+          <button type="button" className="inicio__ubicacion">
+            <MapPin size={15} strokeWidth={2.2} />
+            Activar ubicación
+            <ChevronDown size={15} strokeWidth={2.2} />
+          </button>
+
+          <div className="inicio__acciones">
+            <button type="button" className="inicio__campana" aria-label="Notificaciones">
+              <Bell size={19} strokeWidth={2} />
+              <span className="inicio__punto" />
             </button>
-
-            <div className="inicio__acciones">
-              <button type="button" className="inicio__campana" aria-label="Notificaciones">
-                <Bell size={19} strokeWidth={2} />
-                <span className="inicio__punto" />
-              </button>
-              <div className="inicio__avatar">JP</div>
-            </div>
+            <div className="inicio__avatar">JP</div>
           </div>
+        </div>
 
-          <div className="inicio__buscador">
-            <Search className="inicio__lupa" size={16} strokeWidth={2.2} />
-            <input
-              className="inicio__input"
-              type="search"
-              placeholder="Busca locales y promociones"
-              aria-label="Busca locales y promociones"
-            />
-          </div>
+        <div className="inicio__buscador">
+          <Search className="inicio__lupa" size={16} strokeWidth={2.2} />
+          <input
+            className="inicio__input"
+            type="search"
+            placeholder="Busca locales y promociones"
+            aria-label="Busca locales y promociones"
+          />
+        </div>
+      </header>
 
+      <div className="inicio__scroll">
+        <div className="inicio__tarjetas">
           <section className="tarjeta-ahorro">
             <p className="tarjeta-ahorro__rotulo">Ahorraste este mes</p>
             <p className="tarjeta-ahorro__monto">$0</p>
@@ -122,7 +124,7 @@ export default function Inicio(): React.JSX.Element {
               <CreditCard size={19} strokeWidth={2} />
             </span>
           </section>
-        </header>
+        </div>
 
         <main className="inicio__cuerpo">
           <nav className="categorias" aria-label="Categorías">

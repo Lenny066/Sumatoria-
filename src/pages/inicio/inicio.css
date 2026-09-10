@@ -21,7 +21,14 @@
 }
 
 .inicio__cabecera {
-  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 18px;
+  flex: 0 0 auto;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 0;
+  background-color: #2a1a5e;
+  z-index: 2;
+}
+
+.inicio__tarjetas {
+  padding: 0 16px 18px;
   background-color: #2a1a5e;
   border-radius: 0 0 22px 22px;
 }
@@ -92,7 +99,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-top: 14px;
+  padding: 14px 0;
 }
 
 .inicio__lupa {
@@ -126,7 +133,7 @@
 }
 
 .tarjeta-ahorro {
-  margin-top: 14px;
+  margin-top: 0;
   padding: 13px 16px 14px;
   border-radius: 14px;
   background: linear-gradient(120deg, #7c3aed 0%, #8b5cf6 55%, #6d28d9 100%);

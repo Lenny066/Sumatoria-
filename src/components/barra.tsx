@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, MapPin, Bookmark, User } from 'lucide-react';
+import { Home, Sparkles, MapPin, Bookmark, User } from 'lucide-react';
 import './barra.css';
 
 type ItemBarra = {
@@ -13,7 +13,7 @@ type ItemBarra = {
 
 const ITEMS: ItemBarra[] = [
   { id: 'inicio', etiqueta: 'Inicio', icono: Home, ruta: '/inicio' },
-  { id: 'buscar', etiqueta: 'Buscar', icono: Search, ruta: null },
+  { id: 'ia', etiqueta: 'IA', icono: Sparkles, ruta: '/ia' },
   { id: 'cerca', etiqueta: 'Mapa', icono: MapPin, ruta: '/mapa', central: true },
   { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: '/favoritos' },
   { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: null },

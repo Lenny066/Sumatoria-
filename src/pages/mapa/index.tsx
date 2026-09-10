@@ -238,3 +238,6 @@ export default function Mapa(): React.JSX.Element {
     </div>
   );
 }
+
+
+  //Escuchame, vas a hacer una nueva pantalla que va a ser la del perfil. Osea cuando vos en la barra de abajo le das a perfil, se va a abrir esta pantalla.Hay alguunas cosas en la imagen que vos no vas a poner.  La parte de los puntos no la pones. 
