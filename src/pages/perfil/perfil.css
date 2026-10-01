@@ -156,7 +156,7 @@
   color: #167a37;
 }
 
-.opciones {
+.perfil-opciones {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -165,7 +165,7 @@
   list-style: none;
 }
 
-.opcion {
+.perfil-opcion {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -180,7 +180,7 @@
   cursor: pointer;
 }
 
-.opcion__icono {
+.perfil-opcion__icono {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,14 +192,14 @@
   color: #167a37;
 }
 
-.opcion__etiqueta {
+.perfil-opcion__etiqueta {
   flex: 1;
   min-width: 0;
   font-size: 0.82rem;
   font-weight: 600;
 }
 
-.opcion__flecha {
+.perfil-opcion__flecha {
   flex-shrink: 0;
   color: #8a849a;
 }

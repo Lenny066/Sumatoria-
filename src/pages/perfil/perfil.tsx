@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Pencil,
   DollarSign,
@@ -20,9 +21,16 @@ const USUARIO = {
   ahorroMes: '+$0 este mes',
 };
 
-const OPCIONES = [
+type Opcion = {
+  id: string;
+  etiqueta: string;
+  icono: typeof User;
+  ruta?: string;
+};
+
+const OPCIONES: Opcion[] = [
   { id: 'editar', etiqueta: 'Editar perfil', icono: User },
-  { id: 'tarjetas', etiqueta: 'Tarjetas vinculadas', icono: CreditCard },
+  { id: 'tarjetas', etiqueta: 'Tarjetas vinculadas', icono: CreditCard, ruta: '/tarjetas-vinculadas' },
   { id: 'negocios', etiqueta: 'Negocios que sigo', icono: Store },
   { id: 'ajustes', etiqueta: 'Ajustes y notificaciones', icono: Bell },
   { id: 'invitar', etiqueta: 'Invitá amigos', icono: UserPlus },
@@ -39,6 +47,8 @@ function obtenerIniciales(nombre: string): string {
 }
 
 export default function Perfil(): React.JSX.Element {
+  const navigate = useNavigate();
+
   return (
     <div className="perfil">
       <div className="perfil__scroll">
@@ -70,15 +80,19 @@ export default function Perfil(): React.JSX.Element {
             <ChevronRight className="ahorro__flecha" size={20} strokeWidth={2.4} />
           </button>
 
-          <ul className="opciones">
-            {OPCIONES.map(({ id, etiqueta, icono: Icono }) => (
+          <ul className="perfil-opciones">
+            {OPCIONES.map(({ id, etiqueta, icono: Icono, ruta }) => (
               <li key={id}>
-                <button type="button" className="opcion">
-                  <span className="opcion__icono">
+                <button
+                  type="button"
+                  className="perfil-opcion"
+                  onClick={() => ruta && navigate(ruta)}
+                >
+                  <span className="perfil-opcion__icono">
                     <Icono size={17} strokeWidth={2} />
                   </span>
-                  <span className="opcion__etiqueta">{etiqueta}</span>
-                  <ChevronRight className="opcion__flecha" size={16} strokeWidth={2.2} />
+                  <span className="perfil-opcion__etiqueta">{etiqueta}</span>
+                  <ChevronRight className="perfil-opcion__flecha" size={16} strokeWidth={2.2} />
                 </button>
               </li>
             ))}

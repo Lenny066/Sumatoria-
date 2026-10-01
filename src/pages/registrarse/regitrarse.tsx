@@ -16,7 +16,6 @@ export default function Registrarse() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [tarjeta, setTarjeta] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -99,24 +98,6 @@ export default function Registrarse() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <hr className="separador-registro" />
-
-        <label className="etiqueta-registro" htmlFor="tarjeta">
-          Tarjeta bancaria (opcional)
-        </label>
-        <p className="ayuda-registro">
-          Sumala para ver promociones exclusivas de tu banco
-        </p>
-        <input
-          className="campo-registro"
-          id="tarjeta"
-          name="tarjeta"
-          type="text"
-          placeholder="Banco emisor"
-          value={tarjeta}
-          onChange={(e) => setTarjeta(e.target.value)}
         />
 
         {error && <p className="error-registro">{error}</p>}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronDown, Lock } from 'lucide-react';
 import Barra from '../../components/barra';
+import { agregarTarjeta, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
 import './tarjetas.css';
 
 const MARCAS = [
@@ -33,16 +34,18 @@ const TIPOS = [
 
 export default function Tarjetas(): React.JSX.Element {
   const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const [marca, setMarca] = useState<string>('visa');
+  const [marca, setMarca] = useState<Marca>('visa');
   const [banco, setBanco] = useState<string>(BANCOS[0]);
-  const [tipo, setTipo] = useState<string>('debito');
+  const [tipo, setTipo] = useState<TipoTarjeta>('debito');
 
   const marcaElegida = MARCAS.find(({ id }) => id === marca);
   const tipoElegido = TIPOS.find(({ id }) => id === tipo);
 
   function agregar() {
-    navigate('/inicio');
+    agregarTarjeta({ marca, banco, tipo });
+    navigate(state?.volverA ?? '/inicio');
   }
 
   return (
