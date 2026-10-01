@@ -10,6 +10,7 @@ import Inicio from "./pages/inicio/inicio";
 import Favoritos from "./pages/favoritos/favoritos";
 import IA from "./pages/IA/IA";
 import Tarjetas from "./pages/tarjetas/tarjetas";
+import Perfil from "./pages/perfil/perfil";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/ia" element={<IA />} />
         <Route path="/agregar-tarjeta" element={<Tarjetas />} />
+        <Route path="/perfil" element={<Perfil />} />
       </Routes>
     </BrowserRouter>
   );

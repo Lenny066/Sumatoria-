@@ -16,7 +16,7 @@ const ITEMS: ItemBarra[] = [
   { id: 'ia', etiqueta: 'IA', icono: Sparkles, ruta: '/ia' },
   { id: 'cerca', etiqueta: 'Mapa', icono: MapPin, ruta: '/mapa', central: true },
   { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: '/favoritos' },
-  { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: null },
+  { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: '/perfil' },
 ];
 
 export const Barra: React.FC = () => {
