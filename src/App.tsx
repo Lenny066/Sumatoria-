@@ -12,6 +12,9 @@ import IA from "./pages/IA/IA";
 import Tarjetas from "./pages/tarjetas/tarjetas";
 import Perfil from "./pages/perfil/perfil";
 import TarjetasVinculadas from "./pages/perfil/Perfiltodo/tarjetasvinculadas/tarjetasvinculadas";
+import Negocio from "./pages/negocio/negocio";
+import Notificaciones from "./pages/notificaciones/notificaciones";
+import NegociosQueSigo from "./pages/perfil/Perfiltodo/negociosquesigo/negociosquesigo";
 
 export default function App() {
   return (
@@ -30,6 +33,9 @@ export default function App() {
         <Route path="/agregar-tarjeta" element={<Tarjetas />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/tarjetas-vinculadas" element={<TarjetasVinculadas />} />
+        <Route path="/negocio/:id" element={<Negocio />} />
+        <Route path="/notificaciones" element={<Notificaciones />} />
+        <Route path="/negocios-que-sigo" element={<NegociosQueSigo />} />
       </Routes>
     </BrowserRouter>
   );

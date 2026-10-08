@@ -1,0 +1,228 @@
+.siguiendo {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #ffffff;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #1c1330;
+}
+
+.siguiendo__cabecera {
+  flex: 0 0 auto;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 16px;
+  border-radius: 0 0 22px 22px;
+  background-color: #2a1a5e;
+  color: #ffffff;
+}
+
+.siguiendo__volver {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.siguiendo__titulo {
+  margin: 12px 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.siguiendo__bajada {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.siguiendo__filtros {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.siguiendo__filtro {
+  padding: 6px 13px;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.16);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.siguiendo__filtro--activo {
+  background-color: #ffffff;
+  color: #2a1a5e;
+}
+
+.siguiendo__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 8px 16px 24px;
+}
+
+.siguiendo__cargando {
+  margin: 24px 0 0;
+  font-size: 0.82rem;
+  color: #8a82a3;
+  text-align: center;
+}
+
+.siguiendo__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seguido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #1c1330;
+}
+
+.seguido__abrir {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.seguido__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #f2f1f5;
+  color: #8a82a3;
+}
+
+.seguido__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.seguido__textos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.seguido__nombre,
+.seguido__detalle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seguido__nombre {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.seguido__detalle {
+  font-size: 0.78rem;
+  color: #6b6480;
+}
+
+.seguido__promos {
+  margin-top: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background-color: #dcf5e4;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1f7a3a;
+}
+
+.seguido__promos--vacio {
+  background-color: #f2f1f5;
+  color: #8a82a3;
+}
+
+.seguido__boton {
+  flex-shrink: 0;
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b6480;
+  cursor: pointer;
+}
+
+.seguido__boton--seguir {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background-color: #1f7a3a;
+  color: #ffffff;
+}
+
+.siguiendo-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 28px;
+  padding: 22px 16px;
+  border: 1px dashed #ddd6ec;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.siguiendo-vacio__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: #f1eef8;
+  color: #2a1a5e;
+}
+
+.siguiendo-vacio__titulo {
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.siguiendo-vacio__texto {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #8a82a3;
+}

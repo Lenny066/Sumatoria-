@@ -1,0 +1,355 @@
+.negocio {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #ffffff;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #1c1330;
+}
+
+.negocio__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.negocio__portada {
+  position: relative;
+  height: 180px;
+  padding-top: env(safe-area-inset-top, 0px);
+  overflow: hidden;
+  background: linear-gradient(180deg, #2a1a5e 0%, #4a3a8a 55%, #8f83c2 100%);
+}
+
+.negocio__identidad {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 36px;
+  display: flex;
+  justify-content: center;
+}
+
+.negocio__logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: contain;
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.negocio__marca {
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+}
+
+.negocio__circulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #ece8f4;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #1c1330;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.negocio__volver {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 16px;
+  z-index: 1;
+}
+
+.negocio__acciones {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 1;
+}
+
+.negocio__cuerpo {
+  position: relative;
+  margin-top: -24px;
+  padding: 18px 18px 24px;
+  border-radius: 20px 20px 0 0;
+  background-color: #ffffff;
+}
+
+.negocio__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.negocio__nombre {
+  margin: 0;
+  min-width: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.negocio__seguir {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1.5px solid #1f7a3a;
+  border-radius: 999px;
+  background-color: #1f7a3a;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.negocio__seguir--activo {
+  background-color: #ffffff;
+  color: #1f7a3a;
+}
+
+.negocio__datos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.negocio__dato {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #1c1330;
+}
+
+.negocio__dato--cerrado {
+  color: #d93a3a;
+  font-weight: 500;
+}
+
+.negocio__dato--abierto {
+  color: #1f7a3a;
+  font-weight: 500;
+}
+
+.negocio__estrella {
+  color: #f2a516;
+}
+
+.negocio__punto {
+  color: #8a82a3;
+}
+
+.negocio__opiniones {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: #1f7a3a;
+  cursor: pointer;
+}
+
+.pestanias {
+  display: flex;
+  gap: 22px;
+  margin-top: 16px;
+  border-bottom: 1px solid #ece8f4;
+}
+
+.pestania {
+  padding: 0 0 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #8a82a3;
+  cursor: pointer;
+}
+
+.pestania--activa {
+  cursor: default;
+  color: #1c1330;
+  border-bottom-color: #2a1a5e;
+}
+
+.negocio__seccion {
+  margin-top: 16px;
+}
+
+.negocio__subtitulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.promos {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -18px;
+  padding: 0 18px 4px;
+  scrollbar-width: none;
+}
+
+.promos::-webkit-scrollbar {
+  display: none;
+}
+
+.promo {
+  flex: 0 0 132px;
+}
+
+.promo__imagen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #f1eef8 0%, #ddd6ec 100%);
+}
+
+.promo__categoria {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #2a1a5e;
+}
+
+.promo__guardar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #2a1a5e;
+  cursor: pointer;
+}
+
+.promo__guardar--activo {
+  color: #1f7a3a;
+}
+
+.promo__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: contain;
+  background-color: #ffffff;
+}
+
+.promo__marca {
+  max-width: 100%;
+  padding: 0 10px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #6b5a8e;
+}
+
+.promo__descuento {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.promo__direccion {
+  margin: 2px 0 0;
+  font-size: 0.68rem;
+  color: #8a82a3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.negocio__vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  padding: 18px 14px;
+  border: 1px dashed #ddd6ec;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.negocio__vacio-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #f1eef8;
+  color: #2a1a5e;
+}
+
+.negocio__vacio-titulo {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.negocio__vacio-texto {
+  margin: 4px 0 0;
+  font-size: 0.74rem;
+  color: #8a82a3;
+}

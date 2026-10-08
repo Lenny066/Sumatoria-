@@ -36,22 +36,8 @@
 .inicio__fila-superior {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
-}
-
-.inicio__ubicacion {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .inicio__acciones {
@@ -365,4 +351,111 @@
   font-size: 0.69rem;
   color: #9a94a8;
   text-align: center;
+}
+
+.carrusel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 0 16px 4px;
+  scrollbar-width: none;
+}
+
+.carrusel::-webkit-scrollbar {
+  display: none;
+}
+
+.carrusel .local {
+  flex: 0 0 150px;
+}
+
+.resultados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+}
+
+.local {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  color: #1c1330;
+  cursor: pointer;
+}
+
+.local__imagen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #f1eef8 0%, #ddd6ec 100%);
+}
+
+.local__rubro {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #2a1a5e;
+}
+
+.local__logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: contain;
+  background-color: #ffffff;
+}
+
+.local__marca {
+  max-width: 100%;
+  padding: 0 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #6b5a8e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.local__promo {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.local__nombre,
+.local__direccion {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.local__nombre {
+  margin-top: 1px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.local__direccion {
+  font-size: 0.7rem;
+  color: #8a82a3;
 }

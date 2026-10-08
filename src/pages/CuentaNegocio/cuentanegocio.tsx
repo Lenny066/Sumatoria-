@@ -24,6 +24,7 @@ const RUBROS = [
   "Gastronomía",
   "Indumentaria",
   "Supermercado",
+  "Electrodomésticos",
   "Farmacia",
   "Librería",
   "Servicios",

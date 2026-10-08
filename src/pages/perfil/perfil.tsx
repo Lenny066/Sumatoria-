@@ -7,8 +7,6 @@ import {
   User,
   CreditCard,
   Store,
-  Bell,
-  UserPlus,
   FileText,
 } from 'lucide-react';
 import Barra from '../../components/barra';
@@ -18,7 +16,6 @@ const USUARIO = {
   nombre: 'Juan Pérez',
   email: 'juan.perez@email.com',
   ahorroTotal: '$0',
-  ahorroMes: '+$0 este mes',
 };
 
 type Opcion = {
@@ -31,9 +28,7 @@ type Opcion = {
 const OPCIONES: Opcion[] = [
   { id: 'editar', etiqueta: 'Editar perfil', icono: User },
   { id: 'tarjetas', etiqueta: 'Tarjetas vinculadas', icono: CreditCard, ruta: '/tarjetas-vinculadas' },
-  { id: 'negocios', etiqueta: 'Negocios que sigo', icono: Store },
-  { id: 'ajustes', etiqueta: 'Ajustes y notificaciones', icono: Bell },
-  { id: 'invitar', etiqueta: 'Invitá amigos', icono: UserPlus },
+  { id: 'negocios', etiqueta: 'Negocios que sigo', icono: Store, ruta: '/negocios-que-sigo' },
   { id: 'terminos', etiqueta: 'Términos y condiciones', icono: FileText },
 ];
 
@@ -74,7 +69,6 @@ export default function Perfil(): React.JSX.Element {
             <span className="ahorro__textos">
               <span className="ahorro__etiqueta">Ahorro total</span>
               <span className="ahorro__monto">{USUARIO.ahorroTotal}</span>
-              <span className="ahorro__mes">{USUARIO.ahorroMes}</span>
             </span>
 
             <ChevronRight className="ahorro__flecha" size={20} strokeWidth={2.4} />

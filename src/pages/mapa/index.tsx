@@ -3,13 +3,18 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import Barra from '../../components/barra';
 import BuscadorMapa, { FiltrosMapa } from '../../components/BuscadorMapa';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { fetchLocalesCABA } from '../../services/overpassService';
-import type { Local } from '../../services/overpassService';
+import {
+  calcularDistancia,
+  obtenerNegocios,
+  type Negocio,
+  type Rubro,
+} from '../../services/negociosService';
 import './mapa.css';
 
 const customIcon: L.Icon = L.icon({
@@ -28,14 +33,19 @@ const CENTRO_POR_DEFECTO: [number, number] = [-34.6037, -58.3816];
 const ZOOM_POR_DEFECTO = 12;
 const ZOOM_UBICADO = 15;
 
-const COLORES_POR_TIPO: Record<Local['tipo'], string> = {
-  gastronomia: '#e67e22',
-  ropa: '#9b59b6',
-  otro: '#3498db',
+const COLORES_POR_RUBRO: Record<Rubro, string> = {
+  'Gastronomía': '#e67e22',
+  'Indumentaria': '#9b59b6',
+  'Supermercado': '#e5484d',
+  'Electrodomésticos': '#5b6cff',
+  'Farmacia': '#1f7a3a',
+  'Librería': '#f2a516',
+  'Servicios': '#14a3b8',
+  'Otro': '#3498db',
 };
 
-function crearIconoLocal(tipo: Local['tipo']): L.DivIcon {
-  const color = COLORES_POR_TIPO[tipo];
+function crearIconoLocal(rubro: Rubro): L.DivIcon {
+  const color = COLORES_POR_RUBRO[rubro] ?? COLORES_POR_RUBRO.Otro;
   return L.divIcon({
     className: 'icono-local',
     html: `<div style="
@@ -79,10 +89,11 @@ function mensajeDeError(error: GeolocationPositionError): string {
 }
 
 export default function Mapa(): React.JSX.Element {
+  const navigate = useNavigate();
   const [posicion, setPosicion] = useState<[number, number] | null>(null);
   const [estado, setEstado] = useState<EstadoUbicacion>('inactiva');
   const [errorUbicacion, setErrorUbicacion] = useState<string | null>(null);
-  const [locales, setLocales] = useState<Local[]>([]);
+  const [locales, setLocales] = useState<Negocio[]>([]);
   const [cargandoLocales, setCargandoLocales] = useState(true);
   const [errorLocales, setErrorLocales] = useState<string | null>(null);
 
@@ -132,10 +143,10 @@ export default function Mapa(): React.JSX.Element {
   }, [activarUbicacion]);
 
   useEffect(() => {
-    fetchLocalesCABA()
+    obtenerNegocios()
       .then((datos) => setLocales(datos))
       .catch((err) => {
-        console.error('Error al traer locales de CABA:', err);
+        console.error('Error al traer los locales:', err);
         setErrorLocales('No se pudieron cargar los locales. Reintentá más tarde.');
       })
       .finally(() => setCargandoLocales(false));
@@ -185,18 +196,30 @@ export default function Mapa(): React.JSX.Element {
                 <Marker
                   key={local.id}
                   position={[local.lat, local.lng]}
-                  icon={crearIconoLocal(local.tipo)}
+                  icon={crearIconoLocal(local.rubro)}
                 >
                   <Popup>
                     <div style={{ fontSize: '0.9rem' }}>
                       <b>{local.nombre}</b><br />
-                      {local.categoria}
-                      {local.direccion && (
-                        <>
-                          <br />
-                          {local.direccion}
-                        </>
-                      )}
+                      {local.rubro}
+                      <br />
+                      {local.direccion}
+                      <br />
+                      <button
+                        type="button"
+                        className="mapa-ver-local"
+                        onClick={() =>
+                          navigate(`/negocio/${local.id}`, {
+                            state: {
+                              distancia: posicion
+                                ? calcularDistancia(posicion, [local.lat, local.lng])
+                                : undefined,
+                            },
+                          })
+                        }
+                      >
+                        Ver local
+                      </button>
                     </div>
                   </Popup>
                 </Marker>
