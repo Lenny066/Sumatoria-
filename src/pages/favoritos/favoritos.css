@@ -17,6 +17,7 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  padding-bottom: var(--espacio-barra);
 }
 
 .favoritos__cabecera {
@@ -286,7 +287,7 @@
   position: fixed;
   left: 16px;
   right: 16px;
-  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--espacio-barra) + 4px);
   z-index: 1100;
   display: flex;
   align-items: center;

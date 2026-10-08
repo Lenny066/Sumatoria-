@@ -13,6 +13,7 @@ import Tarjetas from "./pages/tarjetas/tarjetas";
 import Perfil from "./pages/perfil/perfil";
 import TarjetasVinculadas from "./pages/perfil/Perfiltodo/tarjetasvinculadas/tarjetasvinculadas";
 import Negocio from "./pages/negocio/negocio";
+import PerfilEditarNegocio from "./pages/perfileditarnegocio/perfileditarnegocio";
 import Notificaciones from "./pages/notificaciones/notificaciones";
 import NegociosQueSigo from "./pages/perfil/Perfiltodo/negociosquesigo/negociosquesigo";
 
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/tarjetas-vinculadas" element={<TarjetasVinculadas />} />
         <Route path="/negocio/:id" element={<Negocio />} />
+        <Route path="/perfil-negocio" element={<PerfilEditarNegocio />} />
         <Route path="/notificaciones" element={<Notificaciones />} />
         <Route path="/negocios-que-sigo" element={<NegociosQueSigo />} />
       </Routes>

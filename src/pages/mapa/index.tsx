@@ -40,7 +40,6 @@ const COLORES_POR_RUBRO: Record<Rubro, string> = {
   'Electrodomésticos': '#5b6cff',
   'Farmacia': '#1f7a3a',
   'Librería': '#f2a516',
-  'Servicios': '#14a3b8',
   'Otro': '#3498db',
 };
 

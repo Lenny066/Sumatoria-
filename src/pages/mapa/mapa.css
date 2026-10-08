@@ -23,6 +23,10 @@
   margin-top: 66px;
 }
 
+.mapa-lienzo .leaflet-bottom {
+  bottom: var(--espacio-barra);
+}
+
 .mapa-error-locales {
   position: absolute;
   top: 60px;

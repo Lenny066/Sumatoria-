@@ -8,13 +8,12 @@ type ItemBarra = {
   etiqueta: string;
   icono: typeof Home;
   ruta: string | null;
-  central?: boolean;
 };
 
 const ITEMS: ItemBarra[] = [
   { id: 'inicio', etiqueta: 'Inicio', icono: Home, ruta: '/inicio' },
   { id: 'ia', etiqueta: 'IA', icono: Sparkles, ruta: '/ia' },
-  { id: 'cerca', etiqueta: 'Mapa', icono: MapPin, ruta: '/mapa', central: true },
+  { id: 'cerca', etiqueta: 'Cerca', icono: MapPin, ruta: '/mapa' },
   { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: '/favoritos' },
   { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: '/perfil' },
 ];
@@ -25,7 +24,7 @@ export const Barra: React.FC = () => {
 
   return (
     <nav className="barra">
-      {ITEMS.map(({ id, etiqueta, icono: Icono, ruta, central }) => {
+      {ITEMS.map(({ id, etiqueta, icono: Icono, ruta }) => {
         const activo = ruta !== null && pathname === ruta;
 
         return (
@@ -37,15 +36,9 @@ export const Barra: React.FC = () => {
             aria-current={activo ? 'page' : undefined}
             onClick={() => ruta && navigate(ruta)}
           >
-            {central ? (
-              <span className="barra__circulo">
-                <Icono size={26} color="#ffffff" strokeWidth={2.2} />
-              </span>
-            ) : (
-              <span className="barra__icono">
-                <Icono size={23} strokeWidth={1.9} />
-              </span>
-            )}
+            <span className="barra__icono">
+              <Icono size={20} strokeWidth={1.9} />
+            </span>
             <span className="barra__etiqueta">{etiqueta}</span>
           </button>
         );

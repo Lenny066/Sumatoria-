@@ -8,6 +8,7 @@ import {
   Star,
   UtensilsCrossed,
   Shirt,
+  BookOpen,
   WashingMachine,
   ShoppingCart,
   Flame,
@@ -40,6 +41,7 @@ const CATEGORIAS: Categoria[] = [
   { id: 'indumentaria', etiqueta: 'Indumentaria', icono: Shirt, rubro: 'Indumentaria' },
   { id: 'electrodomesticos', etiqueta: 'Electrodomésticos', icono: WashingMachine, rubro: 'Electrodomésticos' },
   { id: 'supermercados', etiqueta: 'Supermercados', icono: ShoppingCart, rubro: 'Supermercado' },
+  { id: 'libreria', etiqueta: 'Librería', icono: BookOpen, rubro: 'Librería' },
 ];
 
 const SECCIONES = [

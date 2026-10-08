@@ -1,3 +1,5 @@
+import { miNegocioComoCliente, obtenerMiNegocio } from './miNegocioService';
+
 export type Rubro =
   | 'Gastronomía'
   | 'Indumentaria'
@@ -5,7 +7,6 @@ export type Rubro =
   | 'Electrodomésticos'
   | 'Farmacia'
   | 'Librería'
-  | 'Servicios'
   | 'Otro';
 
 export type Dia = 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo';
@@ -29,6 +30,8 @@ export type Negocio = {
   nombre: string;
   rubro: Rubro;
   logo?: string;
+  portada?: string;
+  descripcion?: string;
   direccion: string;
   lat: number;
   lng: number;
@@ -164,6 +167,8 @@ export async function obtenerNegocios(): Promise<Negocio[]> {
 }
 
 export async function obtenerNegocio(id: string): Promise<Negocio | null> {
+  const miNegocio = obtenerMiNegocio();
+  if (miNegocio?.id === id) return miNegocioComoCliente(miNegocio);
   if (!API_URL) return NEGOCIOS_PRUEBA.find((negocio) => negocio.id === id) ?? null;
   try {
     return await pedir<Negocio>(`/negocios/${id}`);

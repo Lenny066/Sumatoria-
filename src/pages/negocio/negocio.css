@@ -17,6 +17,7 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  padding-bottom: var(--espacio-barra);
 }
 
 .negocio__portada {
@@ -25,6 +26,8 @@
   padding-top: env(safe-area-inset-top, 0px);
   overflow: hidden;
   background: linear-gradient(180deg, #2a1a5e 0%, #4a3a8a 55%, #8f83c2 100%);
+  background-size: cover;
+  background-position: center;
 }
 
 .negocio__identidad {
@@ -133,6 +136,13 @@
 .negocio__seguir--activo {
   background-color: #ffffff;
   color: #1f7a3a;
+}
+
+.negocio__descripcion {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #4a4360;
 }
 
 .negocio__datos {

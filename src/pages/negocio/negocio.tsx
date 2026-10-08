@@ -103,7 +103,10 @@ export default function Negocio(): React.JSX.Element {
   return (
     <div className="negocio">
       <div className="negocio__scroll">
-        <header className="negocio__portada">
+        <header
+          className="negocio__portada"
+          style={negocio.portada ? { backgroundImage: `url(${negocio.portada})` } : undefined}
+        >
           {botonVolver}
 
           <div className="negocio__acciones">
@@ -132,6 +135,8 @@ export default function Negocio(): React.JSX.Element {
               {siguiendo ? 'Siguiendo' : 'Seguir'}
             </button>
           </div>
+
+          {negocio.descripcion && <p className="negocio__descripcion">{negocio.descripcion}</p>}
 
           <ul className="negocio__datos">
             {ubicacion && (

@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
+import { crearMiNegocio, leerImagen } from "../../services/miNegocioService";
+import type { Horario, Rubro } from "../../services/negociosService";
 import "./cuentanegocio.css";
-
-type Horario = {
-  dia: string;
-  abierto: boolean;
-  desde: string;
-  hasta: string;
-};
 
 const HORARIOS_INICIALES: Horario[] = [
   { dia: "Lunes", abierto: true, desde: "09:00", hasta: "18:00" },
@@ -20,14 +15,13 @@ const HORARIOS_INICIALES: Horario[] = [
   { dia: "Domingo", abierto: false, desde: "09:00", hasta: "18:00" },
 ];
 
-const RUBROS = [
+const RUBROS: Rubro[] = [
   "Gastronomía",
   "Indumentaria",
   "Supermercado",
   "Electrodomésticos",
   "Farmacia",
   "Librería",
-  "Servicios",
   "Otro",
 ];
 
@@ -35,6 +29,26 @@ export default function CuentaNegocio() {
   const navigate = useNavigate();
   const [horarios, setHorarios] = useState<Horario[]>(HORARIOS_INICIALES);
   const [nombreLogo, setNombreLogo] = useState<string | null>(null);
+  const [logo, setLogo] = useState<string | undefined>(undefined);
+  const [comercio, setComercio] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [rubro, setRubro] = useState<Rubro>(RUBROS[0]);
+
+  async function elegirLogo(archivo: File | undefined) {
+    setNombreLogo(archivo?.name ?? null);
+    setLogo(archivo ? await leerImagen(archivo, 400).catch(() => undefined) : undefined);
+  }
+
+  function crearCuenta() {
+    crearMiNegocio({
+      nombre: comercio.trim(),
+      direccion: direccion.trim(),
+      rubro,
+      logo,
+      horarios,
+    });
+    navigate("/perfil-negocio");
+  }
 
   function actualizarHorario(indice: number, cambios: Partial<Horario>) {
     setHorarios((previos) =>
@@ -67,7 +81,13 @@ export default function CuentaNegocio() {
         </button>
       </div>
 
-      <form className="formulario-negocio" onSubmit={(e) => e.preventDefault()}>
+      <form
+        className="formulario-negocio"
+        onSubmit={(e) => {
+          e.preventDefault();
+          crearCuenta();
+        }}
+      >
         <label className="etiqueta-negocio" htmlFor="comercio">
           Nombre del comercio
         </label>
@@ -77,6 +97,9 @@ export default function CuentaNegocio() {
           name="comercio"
           type="text"
           placeholder="Ej: Panadería Norte"
+          required
+          value={comercio}
+          onChange={(e) => setComercio(e.target.value)}
         />
 
         <label className="etiqueta-negocio" htmlFor="direccion">
@@ -89,12 +112,21 @@ export default function CuentaNegocio() {
           type="text"
           placeholder="Ej: Av. Cabildo 2140"
           autoComplete="street-address"
+          required
+          value={direccion}
+          onChange={(e) => setDireccion(e.target.value)}
         />
 
         <label className="etiqueta-negocio" htmlFor="rubro">
           Rubro
         </label>
-        <select className="campo-negocio select-negocio" id="rubro" name="rubro">
+        <select
+          className="campo-negocio select-negocio"
+          id="rubro"
+          name="rubro"
+          value={rubro}
+          onChange={(e) => setRubro(e.target.value as Rubro)}
+        >
           {RUBROS.map((rubro) => (
             <option key={rubro} value={rubro}>
               {rubro}
@@ -113,7 +145,7 @@ export default function CuentaNegocio() {
             name="logo"
             type="file"
             accept="image/*"
-            onChange={(e) => setNombreLogo(e.target.files?.[0]?.name ?? null)}
+            onChange={(e) => elegirLogo(e.target.files?.[0])}
           />
         </label>
 
@@ -173,6 +205,7 @@ export default function CuentaNegocio() {
           type="email"
           placeholder="tu@email.com"
           autoComplete="email"
+          required
         />
 
         <label className="etiqueta-negocio" htmlFor="password-negocio">
@@ -185,6 +218,7 @@ export default function CuentaNegocio() {
           type="password"
           placeholder="••••••••"
           autoComplete="new-password"
+          required
         />
 
         <button type="submit" className="btn-crear-negocio">
