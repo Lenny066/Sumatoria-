@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Lock, CreditCard } from 'lucide-react';
 import Barra from '../../../../components/barra';
 import {
@@ -9,6 +9,7 @@ import {
   type TarjetaVinculada,
   type TipoTarjeta,
 } from '../../../../services/tarjetasService';
+import { obtenerUsuario } from '../../../../services/usuarioService';
 import './tarjetasvinculadas.css';
 
 const NOMBRES_MARCA: Record<Marca, string> = {
@@ -29,6 +30,8 @@ export default function TarjetasVinculadas(): React.JSX.Element {
   const [tarjetas, setTarjetas] = useState<TarjetaVinculada[]>(obtenerTarjetas);
 
   const cantidad = tarjetas.length;
+
+  if (!obtenerUsuario()) return <Navigate to="/perfil" replace />;
 
   function quitar(id: string) {
     setTarjetas(quitarTarjeta(id));

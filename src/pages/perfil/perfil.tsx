@@ -8,15 +8,14 @@ import {
   CreditCard,
   Store,
   FileText,
+  UserRound,
 } from 'lucide-react';
 import Barra from '../../components/barra';
+import InvitarCuenta from '../../components/InvitarCuenta';
+import { cerrarSesion, obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import './perfil.css';
 
-const USUARIO = {
-  nombre: 'Juan Pérez',
-  email: 'juan.perez@email.com',
-  ahorroTotal: '$0',
-};
+const AHORRO_TOTAL = '$0';
 
 type Opcion = {
   id: string;
@@ -26,36 +25,73 @@ type Opcion = {
 };
 
 const OPCIONES: Opcion[] = [
-  { id: 'editar', etiqueta: 'Editar perfil', icono: User },
+  { id: 'editar', etiqueta: 'Editar perfil', icono: User, ruta: '/editar-perfil' },
   { id: 'tarjetas', etiqueta: 'Tarjetas vinculadas', icono: CreditCard, ruta: '/tarjetas-vinculadas' },
   { id: 'negocios', etiqueta: 'Negocios que sigo', icono: Store, ruta: '/negocios-que-sigo' },
   { id: 'terminos', etiqueta: 'Términos y condiciones', icono: FileText },
 ];
 
-function obtenerIniciales(nombre: string): string {
-  return nombre
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0].toUpperCase())
-    .join('');
-}
-
 export default function Perfil(): React.JSX.Element {
   const navigate = useNavigate();
+  const usuario = obtenerUsuario();
+
+  if (!usuario) {
+    return (
+      <div className="perfil">
+        <div className="perfil__scroll">
+          <header className="perfil__cabecera">
+            <span className="perfil__avatar perfil__avatar--invitado">
+              <UserRound size={24} strokeWidth={2} />
+            </span>
+
+            <div className="perfil__datos">
+              <h1 className="perfil__nombre">Invitado</h1>
+              <p className="perfil__email">Todavía no tenés cuenta</p>
+            </div>
+          </header>
+
+          <main className="perfil__cuerpo">
+            <InvitarCuenta
+              icono={CreditCard}
+              titulo="Creá tu cuenta"
+              texto="Guardá tus tarjetas, seguí a tus negocios favoritos y enterate de las promos que te convienen."
+            />
+          </main>
+        </div>
+
+        <Barra />
+      </div>
+    );
+  }
+
+  function salir() {
+    cerrarSesion();
+    navigate('/login', { replace: true });
+  }
 
   return (
     <div className="perfil">
       <div className="perfil__scroll">
         <header className="perfil__cabecera">
-          <span className="perfil__avatar">{obtenerIniciales(USUARIO.nombre)}</span>
+          <span className="perfil__avatar">
+            {usuario.foto ? (
+              <img src={usuario.foto} alt="" referrerPolicy="no-referrer" />
+            ) : (
+              obtenerIniciales(usuario.nombre)
+            )}
+          </span>
 
           <div className="perfil__datos">
-            <h1 className="perfil__nombre">{USUARIO.nombre}</h1>
-            <p className="perfil__email">{USUARIO.email}</p>
+            <h1 className="perfil__nombre">{usuario.nombre}</h1>
+            <p className="perfil__email">{usuario.email}</p>
           </div>
 
-          <button type="button" className="perfil__editar" aria-label="Editar perfil">
+          <button
+            type="button"
+            className="perfil__editar"
+            aria-label="Editar perfil"
+            onClick={() => navigate('/editar-perfil')}
+          >
             <Pencil size={18} strokeWidth={2} />
           </button>
         </header>
@@ -68,7 +104,7 @@ export default function Perfil(): React.JSX.Element {
 
             <span className="ahorro__textos">
               <span className="ahorro__etiqueta">Ahorro total</span>
-              <span className="ahorro__monto">{USUARIO.ahorroTotal}</span>
+              <span className="ahorro__monto">{AHORRO_TOTAL}</span>
             </span>
 
             <ChevronRight className="ahorro__flecha" size={20} strokeWidth={2.4} />
@@ -92,7 +128,7 @@ export default function Perfil(): React.JSX.Element {
             ))}
           </ul>
 
-          <button type="button" className="perfil__cerrar-sesion">
+          <button type="button" className="perfil__cerrar-sesion" onClick={salir}>
             Cerrar sesión
           </button>
         </main>

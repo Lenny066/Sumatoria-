@@ -41,6 +41,13 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
+  overflow: hidden;
+}
+
+.perfil__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .perfil__datos {
@@ -217,4 +224,13 @@
   font-weight: 600;
   color: #dc2f2f;
   cursor: pointer;
+}
+
+.perfil__avatar--invitado {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.perfil__cuerpo .invitado {
+  margin-top: -42px;
 }

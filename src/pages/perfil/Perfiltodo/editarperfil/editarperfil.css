@@ -1,0 +1,224 @@
+.editar-perfil {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #1c1330;
+}
+
+.editar-perfil__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.editar-perfil__cabecera {
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 56px;
+  border-radius: 0 0 22px 22px;
+  background-color: #2a1a5e;
+  color: #ffffff;
+}
+
+.editar-perfil__volver {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4cc27a;
+  cursor: pointer;
+}
+
+.editar-perfil__titulo {
+  margin: 10px 0 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.editar-perfil__bajada {
+  margin: 2px 0 0;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.editar-perfil__foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -44px;
+}
+
+.editar-perfil__avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  padding: 0;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background-color: #1f7a3a;
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.editar-perfil__avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.editar-perfil__camara {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  background-color: #2a1a5e;
+  color: #ffffff;
+}
+
+.editar-perfil__cambiar-foto {
+  margin-top: 4px;
+  padding: 2px 6px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #1f7a3a;
+  cursor: pointer;
+}
+
+.editar-perfil__archivo {
+  display: none;
+}
+
+.editar-perfil__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 14px 16px 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo__etiqueta {
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.campo__opcional {
+  font-weight: 400;
+  color: #8a82a3;
+}
+
+.campo__input::placeholder {
+  color: #a7a1b8;
+}
+
+.campo__caja {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background-color: #f2f1f5;
+  transition: border-color 0.2s ease;
+}
+
+.campo__caja:focus-within {
+  border-color: #2a1a5e;
+}
+
+.campo__input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #1c1330;
+}
+
+.campo__verificado {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background-color: #dcf5e4;
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #1f7a3a;
+}
+
+.campo__icono {
+  flex-shrink: 0;
+  color: #6b6480;
+}
+
+.campo__ayuda {
+  margin-top: 5px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: #6b6480;
+}
+
+.editar-perfil__pie {
+  flex: 0 0 auto;
+  padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #ece9f2;
+  background-color: #ffffff;
+}
+
+.editar-perfil__guardar {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #1f7a3a;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.editar-perfil__guardar:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

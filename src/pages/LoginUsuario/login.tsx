@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
+import BotonGoogle from "../../components/BotonGoogle";
+import { cerrarSesion } from "../../services/usuarioService";
 import "./login.css";
 
 async function iniciarSesion(email: string, password: string): Promise<boolean> {
@@ -75,6 +77,12 @@ export default function Login() {
         <button type="submit" className="btn-iniciar-sesion" disabled={enviando}>
           {enviando ? "Entrando..." : "Iniciar sesión"}
         </button>
+
+        <BotonGoogle
+          onExito={() => navigate("/inicio")}
+          onError={setError}
+          disabled={enviando}
+        />
       </form>
 
       <p className="texto-crear-cuenta">
@@ -87,7 +95,10 @@ export default function Login() {
       <button
         type="button"
         className="btn-sin-cuenta"
-        onClick={() => navigate("/inicio")}
+        onClick={() => {
+          cerrarSesion();
+          navigate("/inicio");
+        }}
       >
         Continuar sin cuenta
       </button>

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronDown, Lock } from 'lucide-react';
 import Barra from '../../components/barra';
 import { agregarTarjeta, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
+import { obtenerUsuario } from '../../services/usuarioService';
 import './tarjetas.css';
 
 const MARCAS = [
@@ -42,6 +43,8 @@ export default function Tarjetas(): React.JSX.Element {
 
   const marcaElegida = MARCAS.find(({ id }) => id === marca);
   const tipoElegido = TIPOS.find(({ id }) => id === tipo);
+
+  if (!obtenerUsuario()) return <Navigate to="/perfil" replace />;
 
   function agregar() {
     agregarTarjeta({ marca, banco, tipo });

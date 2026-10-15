@@ -18,6 +18,7 @@ import {
   Tag,
 } from 'lucide-react';
 import Barra from '../../components/barra';
+import { obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import {
   buscarNegocios,
   obtenerSeccionesInicio,
@@ -152,6 +153,7 @@ export default function Inicio(): React.JSX.Element {
   }, [busqueda, buscando]);
 
   const abrirNegocio = (negocio: Negocio) => navigate(`/negocio/${negocio.id}`);
+  const usuario = obtenerUsuario();
 
   return (
     <div className="inicio">
@@ -165,9 +167,22 @@ export default function Inicio(): React.JSX.Element {
               onClick={() => navigate('/notificaciones')}
             >
               <Bell size={19} strokeWidth={2} />
-              {sinLeer && <span className="inicio__punto" />}
+              {usuario && sinLeer && <span className="inicio__punto" />}
             </button>
-            <div className="inicio__avatar">JP</div>
+            {usuario && (
+              <button
+                type="button"
+                className="inicio__avatar"
+                aria-label="Perfil"
+                onClick={() => navigate('/perfil')}
+              >
+                {usuario.foto ? (
+                  <img src={usuario.foto} alt="" referrerPolicy="no-referrer" />
+                ) : (
+                  obtenerIniciales(usuario.nombre)
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -197,7 +212,7 @@ export default function Inicio(): React.JSX.Element {
           <button
             type="button"
             className="tarjeta-banco"
-            onClick={() => navigate('/agregar-tarjeta')}
+            onClick={() => navigate(usuario ? '/agregar-tarjeta' : '/registrarse')}
           >
             <div className="tarjeta-banco__texto">
               <span className="tarjeta-banco__titulo">

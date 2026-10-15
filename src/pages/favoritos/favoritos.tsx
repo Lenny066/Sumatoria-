@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bookmark, MapPin, Flame, ChevronRight, Store } from 'lucide-react';
 import Barra from '../../components/barra';
+import InvitarCuenta from '../../components/InvitarCuenta';
+import { obtenerUsuario } from '../../services/usuarioService';
 import {
   calcularDistancia,
   cambiarPromoGuardada,
@@ -122,6 +124,29 @@ export default function Favoritos(): React.JSX.Element {
       .filter((favorito) => grupoDe(favorito) === titulo)
       .sort((a, b) => (a.promocion.vence ?? '').localeCompare(b.promocion.vence ?? '')),
   })).filter(({ items }) => items.length > 0);
+
+  if (!obtenerUsuario()) {
+    return (
+      <div className="favoritos">
+        <header className="favoritos__cabecera">
+          <h1 className="favoritos__titulo">Favoritos</h1>
+          <p className="favoritos__subtitulo">Guardá las promos que más te gustan</p>
+        </header>
+
+        <div className="favoritos__scroll">
+          <main className="favoritos__cuerpo">
+            <InvitarCuenta
+              icono={Bookmark}
+              titulo="Creá tu cuenta para guardar promos"
+              texto="Con una cuenta podés guardar tus promos favoritas y verlas acá cuando quieras."
+            />
+          </main>
+        </div>
+
+        <Barra />
+      </div>
+    );
+  }
 
   return (
     <div className="favoritos">

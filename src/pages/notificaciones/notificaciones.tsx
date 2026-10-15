@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronLeft, Clock, Tag } from 'lucide-react';
 import Barra from '../../components/barra';
+import InvitarCuenta from '../../components/InvitarCuenta';
+import { obtenerUsuario } from '../../services/usuarioService';
 import {
   marcarLeidas,
   obtenerLeidas,
@@ -94,6 +96,33 @@ export default function Notificaciones(): React.JSX.Element {
   function abrir(notificacion: Notificacion) {
     setLeidas(marcarLeidas([notificacion.id]));
     navigate(`/negocio/${notificacion.negocioId}`);
+  }
+
+  if (!obtenerUsuario()) {
+    return (
+      <div className="notificaciones">
+        <header className="notificaciones__cabecera">
+          <div className="notificaciones__fila">
+            <button type="button" className="notificaciones__volver" onClick={() => navigate(-1)}>
+              <ChevronLeft size={18} strokeWidth={2.4} />
+              Inicio
+            </button>
+          </div>
+
+          <h1 className="notificaciones__titulo">Notificaciones</h1>
+        </header>
+
+        <div className="notificaciones__scroll">
+          <InvitarCuenta
+            icono={Bell}
+            titulo="Creá tu cuenta para recibir avisos"
+            texto="Te avisamos cuando los locales que seguís publiquen una promo nueva o cuando alguna esté por vencer."
+          />
+        </div>
+
+        <Barra />
+      </div>
+    );
   }
 
   return (

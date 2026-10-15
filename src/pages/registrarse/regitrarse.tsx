@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
+import BotonGoogle from "../../components/BotonGoogle";
 import "./registrarse.css";
 
 async function crearCuenta(
@@ -105,6 +106,12 @@ export default function Registrarse() {
         <button type="submit" className="btn-crear-cuenta" disabled={enviando}>
           {enviando ? "Creando cuenta..." : "Crear cuenta"}
         </button>
+
+        <BotonGoogle
+          onExito={() => navigate("/inicio")}
+          onError={setError}
+          disabled={enviando}
+        />
       </form>
 
       <p className="texto-iniciar-sesion">
