@@ -17,6 +17,7 @@ import PerfilEditarNegocio from "./pages/perfileditarnegocio/perfileditarnegocio
 import Notificaciones from "./pages/notificaciones/notificaciones";
 import NegociosQueSigo from "./pages/perfil/Perfiltodo/negociosquesigo/negociosquesigo";
 import EditarPerfil from "./pages/perfil/Perfiltodo/editarperfil/editarperfil";
+import PromocionesNegocio from "./pages/promocionesnegocio/promocionesnegocio";
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/notificaciones" element={<Notificaciones />} />
         <Route path="/negocios-que-sigo" element={<NegociosQueSigo />} />
         <Route path="/editar-perfil" element={<EditarPerfil />} />
+        <Route path="/promociones-negocio" element={<PromocionesNegocio />} />
       </Routes>
     </BrowserRouter>
   );

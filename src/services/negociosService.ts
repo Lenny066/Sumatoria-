@@ -1,4 +1,5 @@
 import { miNegocioComoCliente, obtenerMiNegocio } from './miNegocioService';
+import { obtenerMisTarjetas, sirveConTarjetas, type MedioPago } from './promosService';
 
 export type Rubro =
   | 'Gastronomía'
@@ -22,6 +23,10 @@ export type Promocion = {
   id: string;
   descuento: string;
   detalle?: string;
+  descripcion?: string;
+  imagen?: string;
+  dias?: Dia[];
+  mediosPago?: MedioPago[];
   vence?: string;
 };
 
@@ -64,6 +69,16 @@ function enDias(dias: number): string {
   return fecha.toISOString().slice(0, 10);
 }
 
+const TODOS_LOS_DIAS: Dia[] = [
+  'Lunes',
+  'Martes',
+  'Miércoles',
+  'Jueves',
+  'Viernes',
+  'Sábado',
+  'Domingo',
+];
+
 const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '1',
@@ -75,8 +90,22 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
     lng: -58.4563,
     horarios: SEMANA_COMERCIAL,
     promociones: [
-      { id: '1-1', descuento: '20% OFF', detalle: 'Con débito Visa · Lunes y martes', vence: enDias(3) },
-      { id: '1-2', descuento: '2x1 en facturas', detalle: 'Todos los días después de las 18', vence: enDias(20) },
+      {
+        id: '1-1',
+        descuento: '20% OFF',
+        descripcion: 'Descuento en toda la panadería pagando con débito Visa.',
+        dias: ['Lunes', 'Martes'],
+        mediosPago: [{ tipo: 'debito', marca: 'visa', banco: null }],
+        vence: enDias(3),
+      },
+      {
+        id: '1-2',
+        descuento: '2x1 en facturas',
+        descripcion: 'Válido después de las 18 hs, hasta agotar stock.',
+        dias: TODOS_LOS_DIAS,
+        mediosPago: [{ tipo: 'efectivo' }, { tipo: 'mercadopago' }],
+        vence: enDias(20),
+      },
     ],
   },
   {
@@ -88,7 +117,16 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
     lat: -34.5878,
     lng: -58.4108,
     horarios: SEMANA_COMERCIAL.map((horario) => ({ ...horario, abierto: true, desde: '08:00', hasta: '22:00' })),
-    promociones: [{ id: '2-1', descuento: '15% OFF', detalle: 'Con crédito Mastercard · Todos los días', vence: enDias(5) }],
+    promociones: [
+      {
+        id: '2-1',
+        descuento: '15% OFF',
+        descripcion: 'En perfumería y cuidado personal. No incluye medicamentos.',
+        dias: TODOS_LOS_DIAS,
+        mediosPago: [{ tipo: 'credito', marca: 'mastercard', banco: null }],
+        vence: enDias(5),
+      },
+    ],
   },
   {
     id: '3',
@@ -100,8 +138,22 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
     lng: -58.4332,
     horarios: SEMANA_COMERCIAL,
     promociones: [
-      { id: '3-1', descuento: '3 cuotas sin interés', detalle: 'Con crédito Visa', vence: enDias(40) },
-      { id: '3-2', descuento: '25% OFF', detalle: 'Con débito Cabal · Jueves', vence: enDias(1) },
+      {
+        id: '3-1',
+        descuento: '3 cuotas sin interés',
+        descripcion: 'En compras desde $30.000 en toda la tienda.',
+        dias: TODOS_LOS_DIAS,
+        mediosPago: [{ tipo: 'credito', marca: 'visa', banco: 'Banco Galicia' }],
+        vence: enDias(40),
+      },
+      {
+        id: '3-2',
+        descuento: '25% OFF',
+        descripcion: 'En la nueva colección de temporada.',
+        dias: ['Jueves'],
+        mediosPago: [{ tipo: 'debito', marca: 'cabal', banco: null }],
+        vence: enDias(1),
+      },
     ],
   },
   {
@@ -113,7 +165,16 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
     lat: -34.6268,
     lng: -58.4495,
     horarios: SEMANA_COMERCIAL.map((horario) => ({ ...horario, abierto: true, desde: '08:00', hasta: '21:00' })),
-    promociones: [{ id: '4-1', descuento: '30% OFF', detalle: 'Con débito Mastercard · Miércoles', vence: enDias(12) }],
+    promociones: [
+      {
+        id: '4-1',
+        descuento: '30% OFF',
+        descripcion: 'En almacén y limpieza, con tope de reintegro de $8.000 por semana.',
+        dias: ['Miércoles'],
+        mediosPago: [{ tipo: 'debito', marca: 'mastercard', banco: 'Banco Nación' }],
+        vence: enDias(12),
+      },
+    ],
   },
   {
     id: '5',
@@ -161,9 +222,22 @@ async function pedir<T>(ruta: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function obtenerNegocios(): Promise<Negocio[]> {
+export function filtrarPorMisTarjetas(negocio: Negocio): Negocio {
+  const tarjetas = obtenerMisTarjetas();
+  if (tarjetas.length === 0) return negocio;
+  return {
+    ...negocio,
+    promociones: negocio.promociones.filter((promo) => sirveConTarjetas(promo, tarjetas)),
+  };
+}
+
+async function obtenerTodosLosNegocios(): Promise<Negocio[]> {
   if (!API_URL) return NEGOCIOS_PRUEBA;
   return pedir<Negocio[]>('/negocios');
+}
+
+export async function obtenerNegocios(): Promise<Negocio[]> {
+  return (await obtenerTodosLosNegocios()).map(filtrarPorMisTarjetas);
 }
 
 export async function obtenerNegocio(id: string): Promise<Negocio | null> {
@@ -178,28 +252,33 @@ export async function obtenerNegocio(id: string): Promise<Negocio | null> {
 }
 
 export async function obtenerSeccionesInicio(): Promise<SeccionesInicio> {
-  if (!API_URL) {
-    return {
-      hot: negociosDePrueba(SECCIONES_PRUEBA.hot),
-      sugeridas: negociosDePrueba(SECCIONES_PRUEBA.sugeridas),
-      elegidos: negociosDePrueba(SECCIONES_PRUEBA.elegidos),
-      nuevos: negociosDePrueba(SECCIONES_PRUEBA.nuevos),
-    };
-  }
-  return pedir<SeccionesInicio>('/inicio');
+  const secciones: SeccionesInicio = API_URL
+    ? await pedir<SeccionesInicio>('/inicio')
+    : {
+        hot: negociosDePrueba(SECCIONES_PRUEBA.hot),
+        sugeridas: negociosDePrueba(SECCIONES_PRUEBA.sugeridas),
+        elegidos: negociosDePrueba(SECCIONES_PRUEBA.elegidos),
+        nuevos: negociosDePrueba(SECCIONES_PRUEBA.nuevos),
+      };
+  return {
+    hot: secciones.hot.map(filtrarPorMisTarjetas),
+    sugeridas: secciones.sugeridas.map(filtrarPorMisTarjetas),
+    elegidos: secciones.elegidos.map(filtrarPorMisTarjetas),
+    nuevos: secciones.nuevos.map(filtrarPorMisTarjetas),
+  };
 }
 
 export async function buscarNegocios(texto: string): Promise<Negocio[]> {
   const busqueda = normalizar(texto);
   if (!busqueda) return [];
-  if (!API_URL) {
-    return NEGOCIOS_PRUEBA.filter((negocio) =>
-      [negocio.nombre, negocio.rubro, ...negocio.promociones.map((promo) => promo.descuento)].some(
-        (campo) => normalizar(campo).includes(busqueda),
-      ),
-    );
-  }
-  return pedir<Negocio[]>(`/negocios?buscar=${encodeURIComponent(texto.trim())}`);
+  const encontrados = API_URL
+    ? await pedir<Negocio[]>(`/negocios?buscar=${encodeURIComponent(texto.trim())}`)
+    : NEGOCIOS_PRUEBA.filter((negocio) =>
+        [negocio.nombre, negocio.rubro, ...negocio.promociones.map((promo) => promo.descuento)].some(
+          (campo) => normalizar(campo).includes(busqueda),
+        ),
+      );
+  return encontrados.map(filtrarPorMisTarjetas);
 }
 
 function aMinutos(hora: string): number {
@@ -212,11 +291,23 @@ export function calcularEstadoHorario(horarios: Horario[], ahora = new Date()): 
 
   const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
   const hoy = horarios.find((horario) => horario.dia === DIAS[ahora.getDay()]);
+  const ayer = horarios.find((horario) => horario.dia === DIAS[(ahora.getDay() + 6) % 7]);
+
+  if (ayer?.abierto) {
+    const desde = aMinutos(ayer.desde);
+    const hasta = aMinutos(ayer.hasta);
+    if (hasta < desde && minutosAhora < hasta) {
+      return { abierto: true, texto: `Abierto · Cierra a las ${ayer.hasta}` };
+    }
+  }
 
   if (hoy?.abierto) {
     const desde = aMinutos(hoy.desde);
     const hasta = aMinutos(hoy.hasta);
-    if (minutosAhora >= desde && minutosAhora < hasta) {
+    if (desde === hasta) {
+      return { abierto: true, texto: 'Abierto las 24 horas' };
+    }
+    if (minutosAhora >= desde && (hasta < desde || minutosAhora < hasta)) {
       return { abierto: true, texto: `Abierto · Cierra a las ${hoy.hasta}` };
     }
     if (minutosAhora < desde) {
@@ -328,7 +419,7 @@ export function cambiarPromoGuardada(negocioId: string, promoId: string, guardar
 export async function obtenerFavoritos(): Promise<Favorito[]> {
   const guardadas = obtenerPromosGuardadas();
   if (guardadas.length === 0) return [];
-  const negocios = await obtenerNegocios();
+  const negocios = await obtenerTodosLosNegocios();
   return guardadas
     .map(({ negocioId, promoId }) => {
       const negocio = negocios.find((item) => item.id === negocioId);

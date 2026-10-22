@@ -9,6 +9,28 @@ export interface TarjetaVinculada {
   tipo: TipoTarjeta;
 }
 
+export const BANCOS = [
+  'Banco Andes',
+  'Banco Nación',
+  'Banco Provincia',
+  'Banco Galicia',
+  'Banco Santander',
+  'BBVA',
+  'Banco Macro',
+  'Banco Ciudad',
+  'ICBC',
+  'Brubank',
+  'Mercado Pago',
+  'Ualá',
+];
+
+export const NOMBRES_MARCA: Record<Marca, string> = {
+  visa: 'Visa',
+  mastercard: 'Mastercard',
+  amex: 'American Express',
+  cabal: 'Cabal',
+};
+
 const CLAVE = 'sumatoria:tarjetas';
 
 export function obtenerTarjetas(): TarjetaVinculada[] {

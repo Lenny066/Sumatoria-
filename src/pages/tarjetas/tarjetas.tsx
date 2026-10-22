@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronDown, Lock } from 'lucide-react';
 import Barra from '../../components/barra';
-import { agregarTarjeta, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
+import { agregarTarjeta, BANCOS, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
 import { obtenerUsuario } from '../../services/usuarioService';
 import './tarjetas.css';
 
@@ -12,21 +12,6 @@ const MARCAS = [
   { id: 'amex', etiqueta: 'American Express' },
   { id: 'cabal', etiqueta: 'Cabal' },
 ] as const;
-
-const BANCOS = [
-  'Banco Andes',
-  'Banco Nación',
-  'Banco Provincia',
-  'Banco Galicia',
-  'Banco Santander',
-  'BBVA',
-  'Banco Macro',
-  'Banco Ciudad',
-  'ICBC',
-  'Brubank',
-  'Mercado Pago',
-  'Ualá',
-];
 
 const TIPOS = [
   { id: 'debito', etiqueta: 'Débito' },
