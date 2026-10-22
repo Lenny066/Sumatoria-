@@ -206,7 +206,7 @@ function negociosDePrueba(ids: string[]): Negocio[] {
     .filter((negocio): negocio is Negocio => negocio !== undefined);
 }
 
-function normalizar(texto: string): string {
+export function normalizar(texto: string): string {
   return texto
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -274,9 +274,11 @@ export async function buscarNegocios(texto: string): Promise<Negocio[]> {
   const encontrados = API_URL
     ? await pedir<Negocio[]>(`/negocios?buscar=${encodeURIComponent(texto.trim())}`)
     : NEGOCIOS_PRUEBA.filter((negocio) =>
-        [negocio.nombre, negocio.rubro, ...negocio.promociones.map((promo) => promo.descuento)].some(
-          (campo) => normalizar(campo).includes(busqueda),
-        ),
+        [
+          negocio.nombre,
+          negocio.rubro,
+          ...negocio.promociones.flatMap((promo) => [promo.descuento, promo.descripcion ?? '']),
+        ].some((campo) => normalizar(campo).includes(busqueda)),
       );
   return encontrados.map(filtrarPorMisTarjetas);
 }

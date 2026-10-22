@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
+  Bookmark,
   Search,
   CreditCard,
   Lock,
@@ -14,15 +15,20 @@ import {
   Flame,
   Smile,
   Sparkles,
-  Store,
   Tag,
 } from 'lucide-react';
 import Barra from '../../components/barra';
+import DetallePromo from '../../components/DetallePromo';
 import { obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import {
   buscarNegocios,
+  cambiarPromoGuardada,
+  estaGuardada,
+  normalizar,
+  obtenerPromosGuardadas,
   obtenerSeccionesInicio,
   type Negocio,
+  type Promocion,
   type Rubro,
   type SeccionesInicio,
 } from '../../services/negociosService';
@@ -76,19 +82,63 @@ const SECCIONES = [
   {
     id: 'nuevos',
     emoji: '🆕',
-    titulo: 'Locales nuevos',
-    bajada: 'Recién sumados a Sumatoria',
-    icono: Store,
-    vacioTitulo: 'Todavía no hay locales nuevos',
-    vacioTexto: 'Cada vez que un local se sume a Sumatoria lo vas a encontrar en esta sección.',
+    titulo: 'Promos nuevas',
+    bajada: 'Recién publicadas',
+    icono: Tag,
+    vacioTitulo: 'Todavía no hay promos nuevas',
+    vacioTexto: 'Cada vez que un local publique una promo nueva la vas a encontrar en esta sección.',
   },
 ] as const;
 
+type PromoDeLocal = { negocio: Negocio; promo: Promocion };
+
+function promosDe(negocios: Negocio[]): PromoDeLocal[] {
+  return negocios.flatMap((negocio) => negocio.promociones.map((promo) => ({ negocio, promo })));
+}
+
+type TarjetaPromoProps = {
+  item: PromoDeLocal;
+  guardada: boolean;
+  onAbrir: () => void;
+  onGuardar: () => void;
+};
+
+function TarjetaPromo({ item: { negocio, promo }, guardada, onAbrir, onGuardar }: TarjetaPromoProps) {
+  return (
+    <article className="local local--promo">
+      <button type="button" className="local__abrir" onClick={onAbrir}>
+        <span className="local__imagen">
+          {promo.imagen ? (
+            <img className="local__foto" src={promo.imagen} alt="" />
+          ) : negocio.logo ? (
+            <img className="local__logo" src={negocio.logo} alt="" />
+          ) : (
+            <span className="local__marca">{negocio.nombre}</span>
+          )}
+          <span className="local__rubro">{negocio.rubro}</span>
+        </span>
+        <span className="local__promo">{promo.descuento}</span>
+        <span className="local__nombre">{negocio.nombre}</span>
+        <span className="local__direccion">{negocio.direccion}</span>
+      </button>
+      <button
+        type="button"
+        className={`local__guardar${guardada ? ' local__guardar--activo' : ''}`}
+        aria-label={guardada ? `Quitar ${promo.descuento} de favoritos` : `Guardar ${promo.descuento} en favoritos`}
+        aria-pressed={guardada}
+        onClick={onGuardar}
+      >
+        <Bookmark size={14} strokeWidth={2.2} fill={guardada ? 'currentColor' : 'none'} />
+      </button>
+    </article>
+  );
+}
+
 function TarjetaLocal({ negocio, onAbrir }: { negocio: Negocio; onAbrir: () => void }) {
-  const promo = negocio.promociones[0];
+  const cantidad = negocio.promociones.length;
 
   return (
-    <button type="button" className="local" onClick={onAbrir}>
+    <button type="button" className="local local__abrir" onClick={onAbrir}>
       <span className="local__imagen">
         <span className="local__rubro">{negocio.rubro}</span>
         {negocio.logo ? (
@@ -97,8 +147,10 @@ function TarjetaLocal({ negocio, onAbrir }: { negocio: Negocio; onAbrir: () => v
           <span className="local__marca">{negocio.nombre}</span>
         )}
       </span>
-      <span className="local__promo">{promo ? promo.descuento : 'Sin promociones'}</span>
-      <span className="local__nombre">{negocio.nombre}</span>
+      <span className="local__promo">{negocio.nombre}</span>
+      <span className="local__nombre">
+        {cantidad === 0 ? 'Sin promociones' : `${cantidad} ${cantidad === 1 ? 'promo' : 'promos'}`}
+      </span>
       <span className="local__direccion">{negocio.direccion}</span>
     </button>
   );
@@ -113,10 +165,13 @@ export default function Inicio(): React.JSX.Element {
   const [resultados, setResultados] = useState<{ texto: string; negocios: Negocio[] } | null>(null);
 
   const [sinLeer, setSinLeer] = useState(false);
+  const [guardadas, setGuardadas] = useState(obtenerPromosGuardadas);
+  const [abierta, setAbierta] = useState<PromoDeLocal | null>(null);
 
   const buscando = busqueda.trim() !== '';
   const categoriaActiva = CATEGORIAS.find(({ id }) => id === categoria) ?? CATEGORIAS[0];
-  const hayLocales = secciones !== null && Object.values(secciones).some((lista) => lista.length > 0);
+  const hayPromos =
+    secciones !== null && Object.values(secciones).some((lista) => promosDe(lista).length > 0);
 
   useEffect(() => {
     let cancelado = false;
@@ -153,6 +208,37 @@ export default function Inicio(): React.JSX.Element {
   }, [busqueda, buscando]);
 
   const abrirNegocio = (negocio: Negocio) => navigate(`/negocio/${negocio.id}`);
+
+  function alternarGuardada({ negocio, promo }: PromoDeLocal) {
+    setGuardadas(
+      cambiarPromoGuardada(negocio.id, promo.id, !estaGuardada(guardadas, negocio.id, promo.id)),
+    );
+  }
+
+  function tarjetaPromo(item: PromoDeLocal) {
+    return (
+      <TarjetaPromo
+        key={`${item.negocio.id}-${item.promo.id}`}
+        item={item}
+        guardada={estaGuardada(guardadas, item.negocio.id, item.promo.id)}
+        onAbrir={() => setAbierta(item)}
+        onGuardar={() => alternarGuardada(item)}
+      />
+    );
+  }
+
+  const textoBuscado = normalizar(resultados?.texto ?? '');
+  const coincide = (campo?: string) => !!campo && normalizar(campo).includes(textoBuscado);
+  const localesEncontrados = (resultados?.negocios ?? []).filter(
+    (negocio) => coincide(negocio.nombre) || coincide(negocio.rubro),
+  );
+  const promosEncontradas = promosDe(resultados?.negocios ?? []).filter(
+    ({ negocio, promo }) =>
+      coincide(promo.descuento) ||
+      coincide(promo.descripcion) ||
+      coincide(negocio.nombre) ||
+      coincide(negocio.rubro),
+  );
   const usuario = obtenerUsuario();
 
   return (
@@ -238,22 +324,35 @@ export default function Inicio(): React.JSX.Element {
 
               {resultados?.texto !== busqueda ? (
                 <p className="seccion__bajada">Buscando...</p>
-              ) : resultados.negocios.length > 0 ? (
-                <div className="resultados">
-                  {resultados.negocios.map((negocio) => (
-                    <TarjetaLocal
-                      key={negocio.id}
-                      negocio={negocio}
-                      onAbrir={() => abrirNegocio(negocio)}
-                    />
-                  ))}
-                </div>
+              ) : promosEncontradas.length > 0 || localesEncontrados.length > 0 ? (
+                <>
+                  {promosEncontradas.length > 0 && (
+                    <>
+                      <h3 className="resultados__titulo">Promociones</h3>
+                      <div className="resultados">{promosEncontradas.map(tarjetaPromo)}</div>
+                    </>
+                  )}
+                  {localesEncontrados.length > 0 && (
+                    <>
+                      <h3 className="resultados__titulo">Locales</h3>
+                      <div className="resultados">
+                        {localesEncontrados.map((negocio) => (
+                          <TarjetaLocal
+                            key={negocio.id}
+                            negocio={negocio}
+                            onAbrir={() => abrirNegocio(negocio)}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="vacio">
                   <span className="vacio__icono">
                     <Search size={21} strokeWidth={1.8} />
                   </span>
-                  <p className="vacio__titulo">No encontramos locales</p>
+                  <p className="vacio__titulo">No encontramos resultados</p>
                   <p className="vacio__texto">Probá con otro nombre, rubro o promoción.</p>
                 </div>
               )}
@@ -281,10 +380,12 @@ export default function Inicio(): React.JSX.Element {
             </nav>
 
               {SECCIONES.map(({ id, emoji, titulo, bajada, icono: Icono, vacioTitulo, vacioTexto }) => {
-                const locales = (secciones?.[id] ?? []).filter(
-                  (negocio) => categoriaActiva.rubro === null || negocio.rubro === categoriaActiva.rubro,
+                const todas = promosDe(secciones?.[id] ?? []);
+                const promos = todas.filter(
+                  ({ negocio }) =>
+                    categoriaActiva.rubro === null || negocio.rubro === categoriaActiva.rubro,
                 );
-                const filtrando = categoriaActiva.rubro !== null && (secciones?.[id] ?? []).length > 0;
+                const filtrando = categoriaActiva.rubro !== null && todas.length > 0;
                 return (
                   <section key={id} className="seccion">
                     <div className="seccion__encabezado">
@@ -295,23 +396,15 @@ export default function Inicio(): React.JSX.Element {
                       {bajada && <span className="seccion__bajada">{bajada}</span>}
                     </div>
 
-                    {locales.length > 0 ? (
-                      <div className="carrusel">
-                        {locales.map((negocio) => (
-                          <TarjetaLocal
-                            key={negocio.id}
-                            negocio={negocio}
-                            onAbrir={() => abrirNegocio(negocio)}
-                          />
-                        ))}
-                      </div>
+                    {promos.length > 0 ? (
+                      <div className="carrusel">{promos.map(tarjetaPromo)}</div>
                     ) : (
                       <div className="vacio">
                         <span className="vacio__icono">
                           <Icono size={21} strokeWidth={1.8} />
                         </span>
                         <p className="vacio__titulo">
-                          {filtrando ? `No hay locales de ${categoriaActiva.etiqueta} acá` : vacioTitulo}
+                          {filtrando ? `No hay promos de ${categoriaActiva.etiqueta} acá` : vacioTitulo}
                         </p>
                         <p className="vacio__texto">
                           {filtrando ? 'Probá con otra categoría o tocá Todos.' : vacioTexto}
@@ -322,7 +415,7 @@ export default function Inicio(): React.JSX.Element {
                 );
               })}
 
-              {!hayLocales && (
+              {!hayPromos && (
                 <p className="inicio__pie">
                   <Tag size={13} strokeWidth={2.2} />
                   Muy pronto vas a ver acá las promos de los locales adheridos.
@@ -332,6 +425,17 @@ export default function Inicio(): React.JSX.Element {
           )}
         </main>
       </div>
+
+      {abierta && (
+        <DetallePromo
+          promo={abierta.promo}
+          negocio={abierta.negocio}
+          guardada={estaGuardada(guardadas, abierta.negocio.id, abierta.promo.id)}
+          onGuardar={() => alternarGuardada(abierta)}
+          onCerrar={() => setAbierta(null)}
+          onVerLocal={() => abrirNegocio(abierta.negocio)}
+        />
+      )}
 
       <Barra />
     </div>
