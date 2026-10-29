@@ -2,15 +2,9 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import BotonGoogle from "../../components/BotonGoogle";
+import { mensajeDeError } from "../../services/apiService";
+import { registrarUsuario } from "../../services/usuarioService";
 import "./registrarse.css";
-
-async function crearCuenta(
-  nombre: string,
-  email: string,
-  password: string
-): Promise<boolean> {
-  return nombre.trim() !== "" && email.trim() !== "" && password.trim() !== "";
-}
 
 export default function Registrarse() {
   const navigate = useNavigate();
@@ -29,16 +23,17 @@ export default function Registrarse() {
       return;
     }
 
+    if (password.length < 6) {
+      setError("La contraseña tiene que tener al menos 6 caracteres.");
+      return;
+    }
+
     setEnviando(true);
     try {
-      const ok = await crearCuenta(nombre, email, password);
-      if (ok) {
-        navigate("/inicio");
-      } else {
-        setError("No pudimos crear la cuenta con esos datos.");
-      }
-    } catch {
-      setError("No pudimos crear la cuenta. Probá de nuevo en un momento.");
+      await registrarUsuario(nombre, email, password);
+      navigate("/inicio");
+    } catch (err) {
+      setError(mensajeDeError(err, "No pudimos crear la cuenta. Probá de nuevo en un momento."));
     } finally {
       setEnviando(false);
     }

@@ -46,6 +46,7 @@ export default function Favoritos(): React.JSX.Element {
   const navigate = useNavigate();
 
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
+  const [cargando, setCargando] = useState(() => obtenerUsuario() !== null);
   const [filtro, setFiltro] = useState('todas');
   const [posicion, setPosicion] = useState<[number, number] | null>(null);
   const [quitado, setQuitado] = useState<{ favorito: Favorito; indice: number } | null>(null);
@@ -56,7 +57,8 @@ export default function Favoritos(): React.JSX.Element {
     let cancelado = false;
     obtenerFavoritos()
       .then((datos) => !cancelado && setFavoritos(datos))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => !cancelado && setCargando(false));
     return () => {
       cancelado = true;
     };
@@ -92,7 +94,7 @@ export default function Favoritos(): React.JSX.Element {
   }
 
   function quitar(favorito: Favorito) {
-    cambiarPromoGuardada(favorito.negocio.id, favorito.promocion.id, false);
+    cambiarPromoGuardada(favorito.negocio.id, favorito.promocion.id, false).catch(() => {});
     setQuitado({ favorito, indice: favoritos.findIndex((item) => esElMismo(item, favorito)) });
     setFavoritos(favoritos.filter((item) => !esElMismo(item, favorito)));
   }
@@ -100,7 +102,7 @@ export default function Favoritos(): React.JSX.Element {
   function deshacer() {
     if (!quitado) return;
     const { favorito, indice } = quitado;
-    cambiarPromoGuardada(favorito.negocio.id, favorito.promocion.id, true);
+    cambiarPromoGuardada(favorito.negocio.id, favorito.promocion.id, true).catch(() => {});
     setFavoritos([...favoritos.slice(0, indice), favorito, ...favoritos.slice(indice)]);
     setQuitado(null);
   }
@@ -153,7 +155,9 @@ export default function Favoritos(): React.JSX.Element {
       <header className="favoritos__cabecera">
         <h1 className="favoritos__titulo">Favoritos</h1>
         <p className="favoritos__subtitulo">
-          {hayFavoritos
+          {cargando
+            ? 'Cargando tus favoritos...'
+            : hayFavoritos
             ? `${favoritos.length} ${favoritos.length === 1 ? 'promoción guardada' : 'promociones guardadas'}`
             : 'Sin promociones guardadas'}
         </p>
@@ -177,7 +181,20 @@ export default function Favoritos(): React.JSX.Element {
 
       <div className="favoritos__scroll">
         <main className="favoritos__cuerpo">
-          {hayFavoritos ? (
+          {cargando ? (
+            <ul className="lista-favoritos favoritos__cargando" role="status" aria-label="Cargando favoritos">
+              {[0, 1, 2, 3].map((n) => (
+                <li key={n} className="favorito favorito--cargando" aria-hidden="true">
+                  <span className="favorito__logo cargando" />
+                  <span className="favorito__textos">
+                    <span className="cargando cargando__linea cargando__linea--media" />
+                    <span className="cargando cargando__linea cargando__linea--corta" />
+                    <span className="cargando cargando__linea" />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : hayFavoritos ? (
             grupos.length > 0 ? (
               grupos.map(({ titulo, items }) => (
                 <section key={titulo} className="favoritos__grupo">

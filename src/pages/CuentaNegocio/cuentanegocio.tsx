@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
-import { crearMiNegocio, leerImagen } from "../../services/miNegocioService";
+import { mensajeDeError } from "../../services/apiService";
+import { leerImagen, registrarNegocio } from "../../services/miNegocioService";
 import type { Horario, Rubro } from "../../services/negociosService";
 import "./cuentanegocio.css";
 
@@ -33,21 +34,40 @@ export default function CuentaNegocio() {
   const [comercio, setComercio] = useState("");
   const [direccion, setDireccion] = useState("");
   const [rubro, setRubro] = useState<Rubro>(RUBROS[0]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   async function elegirLogo(archivo: File | undefined) {
     setNombreLogo(archivo?.name ?? null);
     setLogo(archivo ? await leerImagen(archivo, 400).catch(() => undefined) : undefined);
   }
 
-  function crearCuenta() {
-    crearMiNegocio({
-      nombre: comercio.trim(),
-      direccion: direccion.trim(),
-      rubro,
-      logo,
-      horarios,
-    });
-    navigate("/perfil-negocio");
+  async function crearCuenta() {
+    setError(null);
+    if (password.length < 6) {
+      setError("La contraseña tiene que tener al menos 6 caracteres.");
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      await registrarNegocio({
+        nombre: comercio.trim(),
+        direccion: direccion.trim(),
+        rubro,
+        logo,
+        horarios,
+        email: email.trim(),
+        password,
+      });
+      navigate("/perfil-negocio");
+    } catch (err) {
+      setError(mensajeDeError(err, "No pudimos crear la cuenta. Probá de nuevo en un momento."));
+    } finally {
+      setEnviando(false);
+    }
   }
 
   function actualizarHorario(indice: number, cambios: Partial<Horario>) {
@@ -206,6 +226,8 @@ export default function CuentaNegocio() {
           placeholder="tu@email.com"
           autoComplete="email"
           required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <label className="etiqueta-negocio" htmlFor="password-negocio">
@@ -219,10 +241,14 @@ export default function CuentaNegocio() {
           placeholder="••••••••"
           autoComplete="new-password"
           required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button type="submit" className="btn-crear-negocio">
-          Crear cuenta
+        {error && <p className="error-negocio">{error}</p>}
+
+        <button type="submit" className="btn-crear-negocio" disabled={enviando}>
+          {enviando ? "Creando cuenta..." : "Crear cuenta"}
         </button>
       </form>
 

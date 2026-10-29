@@ -222,3 +222,11 @@
   opacity: 0.5;
   cursor: default;
 }
+
+.editar-perfil__error {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #d93a3a;
+  text-align: center;
+}

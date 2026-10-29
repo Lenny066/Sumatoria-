@@ -6,7 +6,6 @@ import InvitarCuenta from '../../components/InvitarCuenta';
 import { obtenerUsuario } from '../../services/usuarioService';
 import {
   marcarLeidas,
-  obtenerLeidas,
   obtenerNotificaciones,
   type Notificacion,
   type TipoNotificacion,
@@ -60,13 +59,17 @@ export default function Notificaciones(): React.JSX.Element {
   const navigate = useNavigate();
 
   const [notificaciones, setNotificaciones] = useState<Notificacion[] | null>(null);
-  const [leidas, setLeidas] = useState<string[]>(obtenerLeidas);
+  const [leidas, setLeidas] = useState<string[]>([]);
   const [filtro, setFiltro] = useState<Filtro>('todas');
 
   useEffect(() => {
     let cancelado = false;
     obtenerNotificaciones()
-      .then((datos) => !cancelado && setNotificaciones(datos))
+      .then((datos) => {
+        if (cancelado) return;
+        setNotificaciones(datos);
+        setLeidas(datos.filter(({ leida }) => leida).map(({ id }) => id));
+      })
       .catch(() => !cancelado && setNotificaciones([]));
     return () => {
       cancelado = true;
@@ -90,11 +93,13 @@ export default function Notificaciones(): React.JSX.Element {
   const haySinLeer = (notificaciones ?? []).some(({ id }) => !leidas.includes(id));
 
   function leerTodas() {
-    setLeidas(marcarLeidas((notificaciones ?? []).map(({ id }) => id)));
+    setLeidas((notificaciones ?? []).map(({ id }) => id));
+    marcarLeidas().catch(() => {});
   }
 
   function abrir(notificacion: Notificacion) {
-    setLeidas(marcarLeidas([notificacion.id]));
+    setLeidas((actuales) => [...actuales, notificacion.id]);
+    marcarLeidas([notificacion.id]).catch(() => {});
     navigate(`/negocio/${notificacion.negocioId}`);
   }
 

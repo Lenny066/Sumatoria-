@@ -1,4 +1,6 @@
-export type Marca = 'visa' | 'mastercard' | 'amex' | 'cabal';
+import { CLAVES, escribirGuardado, haySesionUsuario, leerGuardado, pedirApi } from './apiService';
+
+export type Marca ='visa' | 'mastercard' | 'amex' | 'cabal';
 
 export type TipoTarjeta = 'debito' | 'credito';
 
@@ -31,43 +33,31 @@ export const NOMBRES_MARCA: Record<Marca, string> = {
   cabal: 'Cabal',
 };
 
-const CLAVE = 'sumatoria:tarjetas';
-
+// Las tarjetas se guardan en el back. Acá se guarda una copia para mostrarlas al instante;
+// cada pantalla la actualiza con sincronizarTarjetas().
 export function obtenerTarjetas(): TarjetaVinculada[] {
-  try {
-    const guardadas = localStorage.getItem(CLAVE);
-    return guardadas ? (JSON.parse(guardadas) as TarjetaVinculada[]) : [];
-  } catch {
-    return [];
-  }
+  if (!haySesionUsuario()) return [];
+  return leerGuardado<TarjetaVinculada[]>(CLAVES.tarjetas, []);
 }
 
-function guardarTarjetas(tarjetas: TarjetaVinculada[]): void {
-  try {
-    localStorage.setItem(CLAVE, JSON.stringify(tarjetas));
-  } catch {
-    return;
-  }
+function guardarCopia(tarjetas: TarjetaVinculada[]): TarjetaVinculada[] {
+  escribirGuardado(CLAVES.tarjetas, tarjetas);
+  return tarjetas;
 }
 
-export function agregarTarjeta(nueva: Omit<TarjetaVinculada, 'id'>): TarjetaVinculada[] {
-  const actuales = obtenerTarjetas();
-  const repetida = actuales.some(
-    ({ marca, banco, tipo }) =>
-      marca === nueva.marca && banco === nueva.banco && tipo === nueva.tipo,
+export async function sincronizarTarjetas(): Promise<TarjetaVinculada[]> {
+  if (!haySesionUsuario()) return [];
+  return guardarCopia(await pedirApi<TarjetaVinculada[]>('/usuario/tarjetas'));
+}
+
+export async function agregarTarjeta(nueva: Omit<TarjetaVinculada, 'id'>): Promise<TarjetaVinculada[]> {
+  return guardarCopia(
+    await pedirApi<TarjetaVinculada[]>('/usuario/tarjetas', { method: 'POST', body: nueva }),
   );
-
-  if (repetida) {
-    return actuales;
-  }
-
-  const tarjetas = [...actuales, { ...nueva, id: `${Date.now()}` }];
-  guardarTarjetas(tarjetas);
-  return tarjetas;
 }
 
-export function quitarTarjeta(id: string): TarjetaVinculada[] {
-  const tarjetas = obtenerTarjetas().filter((tarjeta) => tarjeta.id !== id);
-  guardarTarjetas(tarjetas);
-  return tarjetas;
+export async function quitarTarjeta(id: string): Promise<TarjetaVinculada[]> {
+  return guardarCopia(
+    await pedirApi<TarjetaVinculada[]>(`/usuario/tarjetas/${id}`, { method: 'DELETE' }),
+  );
 }

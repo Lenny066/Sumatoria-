@@ -1,4 +1,4 @@
-import { obtenerSeguidos } from './negociosService';
+import { haySesionUsuario, hayApi, pedirApi } from './apiService';
 
 export type TipoNotificacion = 'promo' | 'vencimiento';
 
@@ -9,11 +9,9 @@ export type Notificacion = {
   texto: string;
   fecha: string;
   negocioId: string;
+  promoId?: string;
+  leida: boolean;
 };
-
-const API_URL: string | undefined = import.meta.env.VITE_API_URL;
-
-const CLAVE_LEIDAS = 'sumatoria:notificaciones-leidas';
 
 const MINUTO = 60 * 1000;
 const HORA = 60 * MINUTO;
@@ -32,6 +30,7 @@ function notificacionesDePrueba(): Notificacion[] {
       texto: 'Panadería Norte activó 20% OFF con débito Visa.',
       fecha: haceUnRato(5 * MINUTO),
       negocioId: '1',
+      leida: false,
     },
     {
       id: 'n2',
@@ -40,6 +39,7 @@ function notificacionesDePrueba(): Notificacion[] {
       texto: 'Súper Ahorro activó 30% OFF los miércoles con débito Mastercard.',
       fecha: haceUnRato(2 * HORA),
       negocioId: '4',
+      leida: false,
     },
     {
       id: 'n3',
@@ -48,6 +48,7 @@ function notificacionesDePrueba(): Notificacion[] {
       texto: 'El 25% OFF en Moda Urbana vence en 24 horas.',
       fecha: haceUnRato(DIA + HORA),
       negocioId: '3',
+      leida: false,
     },
     {
       id: 'n4',
@@ -56,6 +57,7 @@ function notificacionesDePrueba(): Notificacion[] {
       texto: 'Farmacia Central activó 15% OFF con crédito Mastercard.',
       fecha: haceUnRato(3 * DIA),
       negocioId: '2',
+      leida: false,
     },
     {
       id: 'n5',
@@ -64,46 +66,27 @@ function notificacionesDePrueba(): Notificacion[] {
       texto: 'El 2x1 en facturas de Panadería Norte vence mañana.',
       fecha: haceUnRato(4 * DIA),
       negocioId: '1',
+      leida: false,
     },
   ];
 }
 
-async function pedirNotificaciones(): Promise<Notificacion[]> {
-  if (!API_URL) return notificacionesDePrueba();
-  const res = await fetch(`${API_URL}/notificaciones`);
-  if (!res.ok) {
-    throw new Error(`El backend respondió con estado ${res.status}`);
-  }
-  return res.json() as Promise<Notificacion[]>;
-}
-
+// El back ya devuelve solo las de los negocios que sigue el usuario, con "leida" marcado
 export async function obtenerNotificaciones(): Promise<Notificacion[]> {
-  const seguidos = obtenerSeguidos();
-  const notificaciones = await pedirNotificaciones();
-  return notificaciones.filter(({ negocioId }) => seguidos.includes(negocioId));
+  if (!hayApi()) return notificacionesDePrueba();
+  if (!haySesionUsuario()) return [];
+  return pedirApi<Notificacion[]>('/notificaciones');
 }
 
-export function obtenerLeidas(): string[] {
-  try {
-    const guardadas = localStorage.getItem(CLAVE_LEIDAS);
-    return guardadas ? (JSON.parse(guardadas) as string[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function marcarLeidas(ids: string[]): string[] {
-  const leidas = Array.from(new Set([...obtenerLeidas(), ...ids]));
-  try {
-    localStorage.setItem(CLAVE_LEIDAS, JSON.stringify(leidas));
-  } catch {
-    return leidas;
-  }
-  return leidas;
+// Sin ids marca todas como leídas
+export async function marcarLeidas(ids?: string[]): Promise<void> {
+  if (!hayApi() || !haySesionUsuario()) return;
+  await pedirApi('/notificaciones/leidas', { method: 'PUT', body: ids ? { ids } : {} });
 }
 
 export async function hayNotificacionesSinLeer(): Promise<boolean> {
-  const notificaciones = await obtenerNotificaciones();
-  const leidas = obtenerLeidas();
-  return notificaciones.some(({ id }) => !leidas.includes(id));
+  if (!hayApi()) return true;
+  if (!haySesionUsuario()) return false;
+  const { hay } = await pedirApi<{ hay: boolean; cantidad: number }>('/notificaciones/sin-leer');
+  return hay;
 }

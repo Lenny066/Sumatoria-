@@ -2,12 +2,9 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import BotonGoogle from "../../components/BotonGoogle";
-import { cerrarSesion } from "../../services/usuarioService";
+import { mensajeDeError } from "../../services/apiService";
+import { cerrarSesion, iniciarSesion } from "../../services/usuarioService";
 import "./login.css";
-
-async function iniciarSesion(email: string, password: string): Promise<boolean> {
-  return email.trim() !== "" && password.trim() !== "";
-}
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,14 +24,10 @@ export default function Login() {
 
     setEnviando(true);
     try {
-      const ok = await iniciarSesion(email, password);
-      if (ok) {
-        navigate("/inicio");
-      } else {
-        setError("El email o la contraseña no son correctos.");
-      }
-    } catch {
-      setError("No pudimos iniciar sesión. Probá de nuevo en un momento.");
+      const rol = await iniciarSesion(email, password);
+      navigate(rol === "empresa" ? "/perfil-negocio" : "/inicio");
+    } catch (err) {
+      setError(mensajeDeError(err, "No pudimos iniciar sesión. Probá de nuevo en un momento."));
     } finally {
       setEnviando(false);
     }

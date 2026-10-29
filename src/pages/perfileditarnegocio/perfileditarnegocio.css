@@ -577,3 +577,8 @@
     transform: translateY(100%);
   }
 }
+
+.tu-negocio__guardar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

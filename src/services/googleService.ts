@@ -1,4 +1,5 @@
-import { guardarUsuario, obtenerUsuario, type Usuario } from './usuarioService';
+import { ErrorApi, pedirApi } from './apiService';
+import { abrirSesionDeUsuario, type Usuario } from './usuarioService';
 
 interface RespuestaToken {
   access_token?: string;
@@ -85,30 +86,16 @@ export async function iniciarSesionConGoogle(): Promise<Usuario> {
   const google = await cargarGoogle();
   const token = await pedirToken(google, clientId);
 
-  const respuesta = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${token}` },
+  // El back verifica el token con Google, crea o busca al usuario y devuelve la sesión
+  const respuesta = await pedirApi<{ token: string; usuario: Usuario }>('/login/google', {
+    method: 'POST',
+    body: { access_token: token },
   });
-  if (!respuesta.ok) throw new Error('sin-datos');
-
-  const datos = (await respuesta.json()) as { name?: string; email?: string; picture?: string };
-  const email = datos.email ?? '';
-  const anterior = obtenerUsuario();
-  const usuario: Usuario =
-    anterior && anterior.emailGoogle === email
-      ? anterior
-      : {
-          nombre: datos.name ?? '',
-          email,
-          emailGoogle: email,
-          foto: datos.picture ?? null,
-          barrio: '',
-        };
-
-  guardarUsuario(usuario);
-  return usuario;
+  return abrirSesionDeUsuario(respuesta);
 }
 
 export function mensajeErrorGoogle(error: unknown): string | null {
+  if (error instanceof ErrorApi) return error.message;
   const codigo = error instanceof Error ? error.message : '';
   if (codigo === 'popup_closed' || codigo === 'access_denied') return null;
   if (codigo === 'popup_failed_to_open') {

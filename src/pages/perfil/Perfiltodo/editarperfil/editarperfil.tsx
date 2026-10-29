@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Camera, Check, ChevronLeft, MapPin } from 'lucide-react';
+import { mensajeDeError } from '../../../../services/apiService';
 import {
-  guardarUsuario,
+  actualizarPerfil,
   obtenerIniciales,
   obtenerUsuario,
 } from '../../../../services/usuarioService';
@@ -49,9 +50,11 @@ export default function EditarPerfil(): React.JSX.Element {
   const [usuario] = useState(obtenerUsuario);
 
   const [nombre, setNombre] = useState(usuario?.nombre ?? '');
-  const [email, setEmail] = useState(usuario?.email ?? '');
+  const email = usuario?.email ?? '';
   const [barrio, setBarrio] = useState(usuario?.barrio ?? '');
   const [foto, setFoto] = useState<string | null>(usuario?.foto ?? null);
+  const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   if (!usuario) return <Navigate to="/perfil" replace />;
 
@@ -64,21 +67,22 @@ export default function EditarPerfil(): React.JSX.Element {
       .catch(() => {});
   }
 
-  function guardar(evento: React.SyntheticEvent<HTMLFormElement>) {
+  async function guardar(evento: React.SyntheticEvent<HTMLFormElement>) {
     evento.preventDefault();
     if (!usuario) return;
-    guardarUsuario({
-      ...usuario,
-      nombre: nombre.trim(),
-      email: email.trim(),
-      barrio: barrio.trim(),
-      foto,
-    });
-    navigate(-1);
+    setError(null);
+    setGuardando(true);
+    try {
+      await actualizarPerfil({ nombre: nombre.trim(), barrio: barrio.trim(), foto });
+      navigate(-1);
+    } catch (err) {
+      setError(mensajeDeError(err, 'No pudimos guardar los cambios. Probá de nuevo.'));
+      setGuardando(false);
+    }
   }
 
   const emailVerificado = email.trim() === usuario.emailGoogle;
-  const puedeGuardar = nombre.trim() !== '' && email.trim() !== '';
+  const puedeGuardar = nombre.trim() !== '' && !guardando;
 
   return (
     <form className="editar-perfil" onSubmit={guardar}>
@@ -149,7 +153,7 @@ export default function EditarPerfil(): React.JSX.Element {
                 type="email"
                 autoComplete="email"
                 value={email}
-                onChange={(evento) => setEmail(evento.target.value)}
+                readOnly
               />
               {emailVerificado && (
                 <span className="campo__verificado">
@@ -184,8 +188,9 @@ export default function EditarPerfil(): React.JSX.Element {
       </div>
 
       <footer className="editar-perfil__pie">
+        {error && <p className="editar-perfil__error">{error}</p>}
         <button type="submit" className="editar-perfil__guardar" disabled={!puedeGuardar}>
-          Guardar cambios
+          {guardando ? 'Guardando...' : 'Guardar cambios'}
         </button>
       </footer>
     </form>

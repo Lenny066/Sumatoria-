@@ -34,7 +34,11 @@ export default function NegociosQueSigo(): React.JSX.Element {
   useEffect(() => {
     let cancelado = false;
     obtenerNegociosSeguidos()
-      .then((datos) => !cancelado && setNegocios(datos))
+      .then((datos) => {
+        if (cancelado) return;
+        setNegocios(datos);
+        setSeguidos(datos.map(({ id }) => id));
+      })
       .catch(() => !cancelado && setNegocios([]));
     return () => {
       cancelado = true;
@@ -61,7 +65,9 @@ export default function NegociosQueSigo(): React.JSX.Element {
   }, []);
 
   function alternarSeguir(id: string) {
-    setSeguidos(cambiarSeguimiento(id, !seguidos.includes(id)));
+    cambiarSeguimiento(id, !seguidos.includes(id))
+      .then(setSeguidos)
+      .catch(() => {});
   }
 
   const visibles = (negocios ?? []).filter(

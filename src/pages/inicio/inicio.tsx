@@ -27,6 +27,7 @@ import {
   normalizar,
   obtenerPromosGuardadas,
   obtenerSeccionesInicio,
+  sincronizarPromosGuardadas,
   type Negocio,
   type Promocion,
   type Rubro,
@@ -134,6 +135,17 @@ function TarjetaPromo({ item: { negocio, promo }, guardada, onAbrir, onGuardar }
   );
 }
 
+function TarjetaCargando() {
+  return (
+    <div className="local local--cargando" aria-hidden="true">
+      <span className="local__imagen cargando" />
+      <span className="cargando cargando__linea cargando__linea--corta" />
+      <span className="cargando cargando__linea" />
+      <span className="cargando cargando__linea cargando__linea--media" />
+    </div>
+  );
+}
+
 function TarjetaLocal({ negocio, onAbrir }: { negocio: Negocio; onAbrir: () => void }) {
   const cantidad = negocio.promociones.length;
 
@@ -161,6 +173,7 @@ export default function Inicio(): React.JSX.Element {
 
   const [categoria, setCategoria] = useState<string>('todos');
   const [secciones, setSecciones] = useState<SeccionesInicio | null>(null);
+  const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [resultados, setResultados] = useState<{ texto: string; negocios: Negocio[] } | null>(null);
 
@@ -172,6 +185,16 @@ export default function Inicio(): React.JSX.Element {
   const categoriaActiva = CATEGORIAS.find(({ id }) => id === categoria) ?? CATEGORIAS[0];
   const hayPromos =
     secciones !== null && Object.values(secciones).some((lista) => promosDe(lista).length > 0);
+
+  useEffect(() => {
+    let cancelado = false;
+    sincronizarPromosGuardadas()
+      .then((datos) => !cancelado && setGuardadas(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelado = false;
@@ -187,7 +210,8 @@ export default function Inicio(): React.JSX.Element {
     let cancelado = false;
     obtenerSeccionesInicio()
       .then((datos) => !cancelado && setSecciones(datos))
-      .catch((err) => console.error('Error al traer las secciones de inicio:', err));
+      .catch((err) => console.error('Error al traer las secciones de inicio:', err))
+      .finally(() => !cancelado && setCargando(false));
     return () => {
       cancelado = true;
     };
@@ -210,9 +234,13 @@ export default function Inicio(): React.JSX.Element {
   const abrirNegocio = (negocio: Negocio) => navigate(`/negocio/${negocio.id}`);
 
   function alternarGuardada({ negocio, promo }: PromoDeLocal) {
-    setGuardadas(
-      cambiarPromoGuardada(negocio.id, promo.id, !estaGuardada(guardadas, negocio.id, promo.id)),
-    );
+    if (!obtenerUsuario()) {
+      navigate('/login');
+      return;
+    }
+    cambiarPromoGuardada(negocio.id, promo.id, !estaGuardada(guardadas, negocio.id, promo.id))
+      .then(setGuardadas)
+      .catch(() => {});
   }
 
   function tarjetaPromo(item: PromoDeLocal) {
@@ -396,7 +424,13 @@ export default function Inicio(): React.JSX.Element {
                       {bajada && <span className="seccion__bajada">{bajada}</span>}
                     </div>
 
-                    {promos.length > 0 ? (
+                    {cargando ? (
+                      <div className="carrusel" role="status" aria-label="Cargando ofertas">
+                        {[0, 1, 2].map((n) => (
+                          <TarjetaCargando key={n} />
+                        ))}
+                      </div>
+                    ) : promos.length > 0 ? (
                       <div className="carrusel">{promos.map(tarjetaPromo)}</div>
                     ) : (
                       <div className="vacio">
@@ -415,7 +449,7 @@ export default function Inicio(): React.JSX.Element {
                 );
               })}
 
-              {!hayPromos && (
+              {!cargando && !hayPromos && (
                 <p className="inicio__pie">
                   <Tag size={13} strokeWidth={2.2} />
                   Muy pronto vas a ver acá las promos de los locales adheridos.

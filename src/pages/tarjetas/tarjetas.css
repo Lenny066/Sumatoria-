@@ -203,3 +203,15 @@
 .tarjeta-nueva__guardar:active {
   background-color: #126732;
 }
+
+.tarjeta-nueva__error {
+  margin: 14px 0 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #d93a3a;
+}
+
+.tarjeta-nueva__guardar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

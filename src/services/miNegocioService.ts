@@ -1,5 +1,6 @@
-import type { Dia, Horario, Negocio, Rubro } from './negociosService';
-import { DIAS_CORTOS, DIAS_SEMANA, type MedioPago } from './promosService';
+import { guardarSesion, pedirApi } from './apiService';
+import type { Dia, Horario, Rubro } from './negociosService';
+import { DIAS_CORTOS, type MedioPago } from './promosService';
 
 export type EstadoPromo = 'activa' | 'pausada';
 
@@ -24,153 +25,57 @@ export type MiNegocio = {
   portada?: string;
   horarios: Horario[];
   mediosPago: string[];
+  lat?: number;
+  lng?: number;
+  email?: string;
 };
 
-const CLAVE = 'sumatoria:mi-negocio';
-const CLAVE_PROMOS = 'sumatoria:mis-promos';
+type RespuestaRegistro = { token: string; negocio: MiNegocio };
 
-const CENTRO_CABA: [number, number] = [-34.6037, -58.3816];
-
-export function obtenerMiNegocio(): MiNegocio | null {
-  try {
-    const guardado = localStorage.getItem(CLAVE);
-    return guardado ? (JSON.parse(guardado) as MiNegocio) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function guardarMiNegocio(negocio: MiNegocio): boolean {
-  try {
-    localStorage.setItem(CLAVE, JSON.stringify(negocio));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function enDias(dias: number): string {
-  const fecha = new Date();
-  fecha.setDate(fecha.getDate() + dias);
-  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-  const dia = String(fecha.getDate()).padStart(2, '0');
-  return `${fecha.getFullYear()}-${mes}-${dia}`;
-}
-
-const PROMOS_EJEMPLO: PromoNegocio[] = [
-  {
-    id: 'promo-1',
-    titulo: '20% OFF en toda la tienda',
-    descripcion: 'Descuento en todos los productos del local, sin mínimo de compra.',
-    dias: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
-    mediosPago: [
-      { tipo: 'efectivo' },
-      { tipo: 'debito', marca: null, banco: null },
-      { tipo: 'credito', marca: 'visa', banco: 'Banco Galicia' },
-    ],
-    vence: enDias(14),
-    estado: 'activa',
+// Crear cuenta de negocio: el back crea el negocio y devuelve la sesión
+export async function registrarNegocio(
+  datos: Pick<MiNegocio, 'nombre' | 'rubro' | 'direccion' | 'horarios' | 'logo'> & {
+    email: string;
+    password: string;
   },
-  {
-    id: 'promo-2',
-    titulo: '2×1 en facturas los lunes',
-    descripcion: 'Llevando una docena de facturas, la segunda te sale gratis. Solo en Av. Cabildo.',
-    dias: ['Lunes'],
-    mediosPago: [{ tipo: 'efectivo' }, { tipo: 'mercadopago' }],
-    estado: 'pausada',
-  },
-  {
-    id: 'promo-3',
-    titulo: 'Envío gratis desde $10.000',
-    descripcion: 'Envío sin cargo dentro de Belgrano para pedidos por WhatsApp desde $10.000.',
-    dias: DIAS_SEMANA,
-    mediosPago: [{ tipo: 'transferencia' }, { tipo: 'mercadopago' }],
-    estado: 'pausada',
-  },
-];
-
-type PromoGuardada = Omit<PromoNegocio, 'dias' | 'mediosPago' | 'descripcion'> & {
-  detalle?: string;
-  descripcion?: string;
-  dias?: Dia[];
-  mediosPago?: (MedioPago | string)[];
-};
-
-const MEDIOS_ANTERIORES: Record<string, MedioPago> = {
-  Efectivo: { tipo: 'efectivo' },
-  Transferencia: { tipo: 'transferencia' },
-  'Mercado Pago': { tipo: 'mercadopago' },
-  Débito: { tipo: 'debito', marca: null, banco: null },
-  Crédito: { tipo: 'credito', marca: null, banco: null },
-};
-
-function normalizarPromo({ detalle, descripcion, dias, mediosPago, ...promo }: PromoGuardada): PromoNegocio {
-  return {
-    ...promo,
-    descripcion: descripcion || detalle || '',
-    dias: dias ?? DIAS_SEMANA,
-    mediosPago: (mediosPago ?? [])
-      .map((medio) => (typeof medio === 'string' ? MEDIOS_ANTERIORES[medio] : medio))
-      .filter((medio): medio is MedioPago => medio !== undefined),
-  };
-}
-
-export function obtenerMisPromos(): PromoNegocio[] {
-  try {
-    const guardadas = localStorage.getItem(CLAVE_PROMOS);
-    if (!guardadas) return PROMOS_EJEMPLO;
-    return (JSON.parse(guardadas) as PromoGuardada[]).map(normalizarPromo);
-  } catch {
-    return PROMOS_EJEMPLO;
-  }
-}
-
-export function guardarMisPromos(promos: PromoNegocio[]): boolean {
-  try {
-    localStorage.setItem(CLAVE_PROMOS, JSON.stringify(promos));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function crearMiNegocio(
-  datos: Pick<MiNegocio, 'nombre' | 'rubro' | 'direccion' | 'horarios' | 'logo'>,
-): MiNegocio {
-  const negocio: MiNegocio = {
-    id: `mio-${Date.now()}`,
-    descripcion: '',
-    mediosPago: [],
-    ...datos,
-  };
-  guardarMiNegocio(negocio);
+): Promise<MiNegocio> {
+  const { token, negocio } = await pedirApi<RespuestaRegistro>('/registro/empresa', {
+    method: 'POST',
+    body: datos,
+  });
+  guardarSesion(token, 'empresa');
   return negocio;
 }
 
-export function miNegocioComoCliente(negocio: MiNegocio): Negocio {
-  return {
-    id: negocio.id,
-    nombre: negocio.nombre,
-    rubro: negocio.rubro,
-    logo: negocio.logo,
-    portada: negocio.portada,
-    descripcion: negocio.descripcion,
-    direccion: negocio.direccion,
-    lat: CENTRO_CABA[0],
-    lng: CENTRO_CABA[1],
-    horarios: negocio.horarios,
-    promociones: obtenerMisPromos()
-      .filter(({ estado }) => estado === 'activa')
-      .map(({ id, titulo, descripcion, imagen, dias, mediosPago, vence }) => ({
-        id,
-        descuento: titulo,
-        descripcion,
-        imagen,
-        dias,
-        mediosPago,
-        vence,
-      })),
-  };
+export function obtenerMiNegocio(): Promise<MiNegocio> {
+  return pedirApi<MiNegocio>('/empresa/negocio');
+}
+
+export function guardarMiNegocio(negocio: MiNegocio): Promise<MiNegocio> {
+  const { nombre, descripcion, rubro, direccion, horarios, logo, portada, mediosPago } = negocio;
+  return pedirApi<MiNegocio>('/empresa/negocio', {
+    method: 'PUT',
+    body: { nombre, descripcion, rubro, direccion, horarios, logo, portada, mediosPago },
+  });
+}
+
+export function obtenerMisPromos(): Promise<PromoNegocio[]> {
+  return pedirApi<PromoNegocio[]>('/empresa/promos');
+}
+
+function datosDePromo({ titulo, descripcion, imagen, dias, mediosPago, vence, estado }: PromoNegocio) {
+  return { titulo, descripcion, imagen: imagen ?? null, dias, mediosPago, vence: vence ?? null, estado };
+}
+
+export function crearPromo(promo: PromoNegocio): Promise<PromoNegocio> {
+  return pedirApi<PromoNegocio>('/empresa/promos', { method: 'POST', body: datosDePromo(promo) });
+}
+
+export function editarPromo(promo: PromoNegocio): Promise<PromoNegocio> {
+  return pedirApi<PromoNegocio>(`/empresa/promos/${promo.id}`, {
+    method: 'PUT',
+    body: datosDePromo(promo),
+  });
 }
 
 function formatearHora(hora: string): string {

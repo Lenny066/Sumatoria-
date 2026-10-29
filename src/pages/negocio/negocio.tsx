@@ -8,12 +8,16 @@ import {
   cambiarPromoGuardada,
   cambiarSeguimiento,
   estaGuardada,
-  estaSiguiendo,
   obtenerNegocio,
   obtenerPromosGuardadas,
+  obtenerSeguidos,
+  sincronizarPromosGuardadas,
+  sincronizarSeguidos,
   type Negocio as DatosNegocio,
+  type PromoGuardada,
 } from '../../services/negociosService';
 import { obtenerMisTarjetas, sirveConTarjetas } from '../../services/promosService';
+import { obtenerUsuario } from '../../services/usuarioService';
 import './negocio.css';
 
 export default function Negocio(): React.JSX.Element {
@@ -24,18 +28,46 @@ export default function Negocio(): React.JSX.Element {
   const distancia = (state as { distancia?: string } | null)?.distancia;
 
   const [cargado, setCargado] = useState<{ id: string; datos: DatosNegocio | null } | null>(null);
-  const [seguidos, setSeguidos] = useState<Record<string, boolean>>({});
+  const [seguidos, setSeguidos] = useState<string[]>(obtenerSeguidos);
   const [guardadas, setGuardadas] = useState(obtenerPromosGuardadas);
   const [promoAbierta, setPromoAbierta] = useState<string | null>(null);
 
   const negocio = cargado && cargado.id === id ? cargado.datos : undefined;
-  const siguiendo = id ? (seguidos[id] ?? estaSiguiendo(id)) : false;
+  const siguiendo = id ? seguidos.includes(id) : false;
+
+  // Seguir y guardar promos necesitan una cuenta: si no hay sesión, se manda al login
+  function hayCuenta(): boolean {
+    if (obtenerUsuario()) return true;
+    navigate('/login');
+    return false;
+  }
 
   function alternarSeguir() {
-    if (!id) return;
-    cambiarSeguimiento(id, !siguiendo);
-    setSeguidos({ ...seguidos, [id]: !siguiendo });
+    if (!id || !hayCuenta()) return;
+    cambiarSeguimiento(id, !siguiendo)
+      .then(setSeguidos)
+      .catch(() => {});
   }
+
+  function alternarGuardada(negocioId: string, promoId: string, guardar: boolean) {
+    if (!hayCuenta()) return;
+    cambiarPromoGuardada(negocioId, promoId, guardar)
+      .then((datos: PromoGuardada[]) => setGuardadas(datos))
+      .catch(() => {});
+  }
+
+  useEffect(() => {
+    let cancelado = false;
+    sincronizarSeguidos()
+      .then((datos) => !cancelado && setSeguidos(datos))
+      .catch(() => {});
+    sincronizarPromosGuardadas()
+      .then((datos) => !cancelado && setGuardadas(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -201,7 +233,7 @@ export default function Negocio(): React.JSX.Element {
                         className={`promo__guardar${guardada ? ' promo__guardar--activo' : ''}`}
                         aria-label={guardada ? `Quitar ${descuento} de favoritos` : `Guardar ${descuento} en favoritos`}
                         aria-pressed={guardada}
-                        onClick={() => setGuardadas(cambiarPromoGuardada(negocio.id, idPromo, !guardada))}
+                        onClick={() => alternarGuardada(negocio.id, idPromo, !guardada)}
                       >
                         <Bookmark size={14} strokeWidth={2.2} fill={guardada ? 'currentColor' : 'none'} />
                       </button>
@@ -236,12 +268,10 @@ export default function Negocio(): React.JSX.Element {
           negocio={negocio}
           guardada={estaGuardada(guardadas, negocio.id, promoSeleccionada.id)}
           onGuardar={() =>
-            setGuardadas(
-              cambiarPromoGuardada(
-                negocio.id,
-                promoSeleccionada.id,
-                !estaGuardada(guardadas, negocio.id, promoSeleccionada.id),
-              ),
+            alternarGuardada(
+              negocio.id,
+              promoSeleccionada.id,
+              !estaGuardada(guardadas, negocio.id, promoSeleccionada.id),
             )
           }
           onCerrar={() => setPromoAbierta(null)}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Camera, Check, ChevronLeft, Pause, Pencil, Play, Plus, Tag, X } from 'lucide-react';
 import type { Dia } from '../../services/negociosService';
 import {
@@ -14,8 +14,10 @@ import {
   type TipoMedioSimple,
 } from '../../services/promosService';
 import { BANCOS, NOMBRES_MARCA, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
+import { haySesionEmpresa, mensajeDeError } from '../../services/apiService';
 import {
-  guardarMisPromos,
+  crearPromo,
+  editarPromo,
   leerImagen,
   obtenerMisPromos,
   type EstadoPromo,
@@ -387,34 +389,58 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
 export default function PromocionesNegocio(): React.JSX.Element {
   const navigate = useNavigate();
 
-  const [promos, setPromos] = useState<PromoNegocio[]>(obtenerMisPromos);
+  const [promos, setPromos] = useState<PromoNegocio[]>([]);
   const [filtro, setFiltro] = useState<Filtro>('todas');
   const [editando, setEditando] = useState<{ promo: PromoNegocio; nueva: boolean } | null>(null);
-  const [errorGuardado, setErrorGuardado] = useState(false);
+  const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
+  const sesionEmpresa = haySesionEmpresa();
 
-  function persistir(nuevas: PromoNegocio[]): boolean {
-    const guardado = guardarMisPromos(nuevas);
-    setErrorGuardado(!guardado);
-    if (guardado) setPromos(nuevas);
-    return guardado;
-  }
+  useEffect(() => {
+    if (!sesionEmpresa) return;
+    let cancelado = false;
+    obtenerMisPromos()
+      .then((datos) => !cancelado && setPromos(datos))
+      .catch((err) => !cancelado && setErrorGuardado(mensajeDeError(err, 'No pudimos cargar tus promociones.')));
+    return () => {
+      cancelado = true;
+    };
+  }, [sesionEmpresa]);
 
-  function actualizar(promoActualizada: PromoNegocio): boolean {
-    return persistir(
-      promos.map((promo) => (promo.id === promoActualizada.id ? promoActualizada : promo)),
+  function mostrarError(err: unknown) {
+    setErrorGuardado(
+      mensajeDeError(err, 'No se pudieron guardar los cambios. Probá con una imagen más liviana.'),
     );
   }
 
-  function agregar(promo: PromoNegocio): boolean {
-    const guardado = persistir([promo, ...promos]);
-    if (guardado) setFiltro('todas');
-    return guardado;
+  async function actualizar(promoActualizada: PromoNegocio): Promise<boolean> {
+    try {
+      const guardada = await editarPromo(promoActualizada);
+      setPromos((actuales) => actuales.map((promo) => (promo.id === guardada.id ? guardada : promo)));
+      setErrorGuardado(null);
+      return true;
+    } catch (err) {
+      mostrarError(err);
+      return false;
+    }
+  }
+
+  async function agregar(promo: PromoNegocio): Promise<boolean> {
+    try {
+      const nueva = await crearPromo(promo);
+      setPromos((actuales) => [nueva, ...actuales]);
+      setErrorGuardado(null);
+      setFiltro('todas');
+      return true;
+    } catch (err) {
+      mostrarError(err);
+      return false;
+    }
   }
 
   function crear() {
     setEditando({
       promo: {
-        id: `promo-${Date.now()}`,
+        id: '',
         titulo: '',
         descripcion: '',
         dias: DIAS_SEMANA,
@@ -428,6 +454,8 @@ export default function PromocionesNegocio(): React.JSX.Element {
   function alternarEstado(promo: PromoNegocio) {
     actualizar({ ...promo, estado: promo.estado === 'activa' ? 'pausada' : 'activa' });
   }
+
+  if (!sesionEmpresa) return <Navigate to="/login" replace />;
 
   const activas = promos.filter(({ estado }) => estado === 'activa').length;
   const pausadas = promos.length - activas;
@@ -543,7 +571,7 @@ export default function PromocionesNegocio(): React.JSX.Element {
       <footer className="promos-negocio__pie">
         {errorGuardado && (
           <p className="promos-negocio__error" role="status">
-            No se pudieron guardar los cambios. Probá con una imagen más liviana.
+            {errorGuardado}
           </p>
         )}
         <button type="button" className="promos-negocio__nueva" onClick={crear}>
@@ -558,7 +586,9 @@ export default function PromocionesNegocio(): React.JSX.Element {
           nueva={editando.nueva}
           onCerrar={() => setEditando(null)}
           onGuardar={(promo) => {
-            if (editando.nueva ? agregar(promo) : actualizar(promo)) setEditando(null);
+            (editando.nueva ? agregar(promo) : actualizar(promo)).then((ok) => {
+              if (ok) setEditando(null);
+            });
           }}
         />
       )}

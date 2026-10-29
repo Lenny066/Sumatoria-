@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronDown, Lock } from 'lucide-react';
 import Barra from '../../components/barra';
+import { mensajeDeError } from '../../services/apiService';
 import { agregarTarjeta, BANCOS, type Marca, type TipoTarjeta } from '../../services/tarjetasService';
 import { obtenerUsuario } from '../../services/usuarioService';
 import './tarjetas.css';
@@ -25,15 +26,24 @@ export default function Tarjetas(): React.JSX.Element {
   const [marca, setMarca] = useState<Marca>('visa');
   const [banco, setBanco] = useState<string>(BANCOS[0]);
   const [tipo, setTipo] = useState<TipoTarjeta>('debito');
+  const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   const marcaElegida = MARCAS.find(({ id }) => id === marca);
   const tipoElegido = TIPOS.find(({ id }) => id === tipo);
 
   if (!obtenerUsuario()) return <Navigate to="/perfil" replace />;
 
-  function agregar() {
-    agregarTarjeta({ marca, banco, tipo });
-    navigate(state?.volverA ?? '/inicio');
+  async function agregar() {
+    setError(null);
+    setGuardando(true);
+    try {
+      await agregarTarjeta({ marca, banco, tipo });
+      navigate(state?.volverA ?? '/inicio');
+    } catch (err) {
+      setError(mensajeDeError(err, 'No pudimos agregar la tarjeta. Probá de nuevo.'));
+      setGuardando(false);
+    }
   }
 
   return (
@@ -123,8 +133,15 @@ export default function Tarjetas(): React.JSX.Element {
           Tus datos están protegidos con encriptación de nivel bancario.
         </p>
 
-        <button type="button" className="tarjeta-nueva__guardar" onClick={agregar}>
-          Agregar tarjeta
+        {error && <p className="tarjeta-nueva__error">{error}</p>}
+
+        <button
+          type="button"
+          className="tarjeta-nueva__guardar"
+          onClick={agregar}
+          disabled={guardando}
+        >
+          {guardando ? 'Agregando...' : 'Agregar tarjeta'}
         </button>
       </div>
 

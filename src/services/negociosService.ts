@@ -1,4 +1,10 @@
-import { miNegocioComoCliente, obtenerMiNegocio } from './miNegocioService';
+import {
+  CLAVES,
+  escribirGuardado,
+  haySesionUsuario,
+  leerGuardado,
+  pedirApi,
+} from './apiService';
 import { obtenerMisTarjetas, sirveConTarjetas, type MedioPago } from './promosService';
 
 export type Rubro =
@@ -214,12 +220,9 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
-async function pedir<T>(ruta: string): Promise<T> {
-  const res = await fetch(`${API_URL}${ruta}`);
-  if (!res.ok) {
-    throw new Error(`El backend respondió con estado ${res.status}`);
-  }
-  return res.json() as Promise<T>;
+// Manda el token si hay sesión: así el back ya filtra las promos por las tarjetas del usuario
+function pedir<T>(ruta: string): Promise<T> {
+  return pedirApi<T>(ruta);
 }
 
 export function filtrarPorMisTarjetas(negocio: Negocio): Negocio {
@@ -241,8 +244,6 @@ export async function obtenerNegocios(): Promise<Negocio[]> {
 }
 
 export async function obtenerNegocio(id: string): Promise<Negocio | null> {
-  const miNegocio = obtenerMiNegocio();
-  if (miNegocio?.id === id) return miNegocioComoCliente(miNegocio);
   if (!API_URL) return NEGOCIOS_PRUEBA.find((negocio) => negocio.id === id) ?? null;
   try {
     return await pedir<Negocio>(`/negocios/${id}`);
@@ -341,44 +342,42 @@ export function calcularDistancia(desde: [number, number], hasta: [number, numbe
   return `${km.toFixed(1)} km`;
 }
 
-const CLAVE_SEGUIDOS = 'sumatoria:negocios-seguidos';
+// ----- Negocios que sigo -----
+// Se guardan en el back. Acá queda una copia de los ids para pintar los botones "Seguir" al instante.
 
 export function obtenerSeguidos(): string[] {
-  try {
-    const guardados = localStorage.getItem(CLAVE_SEGUIDOS);
-    return guardados ? (JSON.parse(guardados) as string[]) : [];
-  } catch {
-    return [];
-  }
+  if (!haySesionUsuario()) return [];
+  return leerGuardado<string[]>(CLAVES.seguidos, []);
 }
 
-function guardarSeguidos(ids: string[]): void {
-  try {
-    localStorage.setItem(CLAVE_SEGUIDOS, JSON.stringify(ids));
-  } catch {
-    return;
-  }
+function guardarSeguidos(ids: string[]): string[] {
+  escribirGuardado(CLAVES.seguidos, ids);
+  return ids;
 }
 
 export function estaSiguiendo(id: string): boolean {
   return obtenerSeguidos().includes(id);
 }
 
-export function cambiarSeguimiento(id: string, seguir: boolean): string[] {
-  const actuales = obtenerSeguidos().filter((seguido) => seguido !== id);
-  const ids = seguir ? [...actuales, id] : actuales;
-  guardarSeguidos(ids);
-  return ids;
+export async function sincronizarSeguidos(): Promise<string[]> {
+  if (!haySesionUsuario()) return [];
+  return guardarSeguidos(await pedirApi<string[]>('/usuario/seguidos/ids'));
+}
+
+export async function cambiarSeguimiento(id: string, seguir: boolean): Promise<string[]> {
+  return guardarSeguidos(
+    await pedirApi<string[]>(`/negocios/${id}/seguir`, { method: seguir ? 'POST' : 'DELETE' }),
+  );
 }
 
 export async function obtenerNegociosSeguidos(): Promise<Negocio[]> {
-  const ids = obtenerSeguidos();
-  if (ids.length === 0) return [];
-  const negocios = await obtenerNegocios();
-  return ids
-    .map((id) => negocios.find((negocio) => negocio.id === id))
-    .filter((negocio): negocio is Negocio => negocio !== undefined);
+  if (!haySesionUsuario()) return [];
+  const negocios = await pedirApi<Negocio[]>('/usuario/seguidos');
+  guardarSeguidos(negocios.map(({ id }) => id));
+  return negocios;
 }
+
+// ----- Promos guardadas (favoritos) -----
 
 export type PromoGuardada = {
   negocioId: string;
@@ -390,43 +389,37 @@ export type Favorito = {
   promocion: Promocion;
 };
 
-const CLAVE_PROMOS_GUARDADAS = 'sumatoria:promos-guardadas';
-
 export function obtenerPromosGuardadas(): PromoGuardada[] {
-  try {
-    const guardadas = localStorage.getItem(CLAVE_PROMOS_GUARDADAS);
-    return guardadas ? (JSON.parse(guardadas) as PromoGuardada[]) : [];
-  } catch {
-    return [];
-  }
+  if (!haySesionUsuario()) return [];
+  return leerGuardado<PromoGuardada[]>(CLAVES.promosGuardadas, []);
+}
+
+function guardarPromosGuardadas(guardadas: PromoGuardada[]): PromoGuardada[] {
+  escribirGuardado(CLAVES.promosGuardadas, guardadas);
+  return guardadas;
 }
 
 export function estaGuardada(guardadas: PromoGuardada[], negocioId: string, promoId: string): boolean {
   return guardadas.some((item) => item.negocioId === negocioId && item.promoId === promoId);
 }
 
-export function cambiarPromoGuardada(negocioId: string, promoId: string, guardar: boolean): PromoGuardada[] {
-  const actuales = obtenerPromosGuardadas().filter(
-    (item) => !(item.negocioId === negocioId && item.promoId === promoId),
-  );
-  const guardadas = guardar ? [...actuales, { negocioId, promoId }] : actuales;
-  try {
-    localStorage.setItem(CLAVE_PROMOS_GUARDADAS, JSON.stringify(guardadas));
-  } catch {
-    return guardadas;
-  }
-  return guardadas;
+export async function sincronizarPromosGuardadas(): Promise<PromoGuardada[]> {
+  if (!haySesionUsuario()) return [];
+  return guardarPromosGuardadas(await pedirApi<PromoGuardada[]>('/usuario/favoritos/ids'));
+}
+
+export async function cambiarPromoGuardada(
+  _negocioId: string,
+  promoId: string,
+  guardar: boolean,
+): Promise<PromoGuardada[]> {
+  const guardadas = guardar
+    ? await pedirApi<PromoGuardada[]>('/usuario/favoritos', { method: 'POST', body: { promoId } })
+    : await pedirApi<PromoGuardada[]>(`/usuario/favoritos/${promoId}`, { method: 'DELETE' });
+  return guardarPromosGuardadas(guardadas);
 }
 
 export async function obtenerFavoritos(): Promise<Favorito[]> {
-  const guardadas = obtenerPromosGuardadas();
-  if (guardadas.length === 0) return [];
-  const negocios = await obtenerTodosLosNegocios();
-  return guardadas
-    .map(({ negocioId, promoId }) => {
-      const negocio = negocios.find((item) => item.id === negocioId);
-      const promocion = negocio?.promociones.find((item) => item.id === promoId);
-      return negocio && promocion ? { negocio, promocion } : null;
-    })
-    .filter((favorito): favorito is Favorito => favorito !== null);
+  if (!haySesionUsuario()) return [];
+  return pedirApi<Favorito[]>('/usuario/favoritos');
 }

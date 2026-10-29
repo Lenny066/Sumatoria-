@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   Camera,
   Check,
@@ -12,6 +12,7 @@ import {
   Tag,
   X,
 } from 'lucide-react';
+import { haySesionEmpresa, mensajeDeError } from '../../services/apiService';
 import {
   guardarMiNegocio,
   leerImagen,
@@ -35,25 +36,6 @@ const RUBROS: { rubro: Rubro; etiqueta: string }[] = [
 ];
 
 const MAXIMO_DESCRIPCION = 150;
-
-const NEGOCIO_EJEMPLO: MiNegocio = {
-  id: 'mio-ejemplo',
-  nombre: 'Panadería Norte',
-  descripcion: 'Panificados y facturas artesanales, recién horneados todos los días.',
-  rubro: 'Gastronomía',
-  direccion: 'Av. Cabildo 2140, Belgrano',
-  logo: '/logos/panaderia-norte.svg',
-  horarios: [
-    { dia: 'Lunes', abierto: true, desde: '09:00', hasta: '18:00' },
-    { dia: 'Martes', abierto: true, desde: '09:00', hasta: '18:00' },
-    { dia: 'Miércoles', abierto: true, desde: '09:00', hasta: '18:00' },
-    { dia: 'Jueves', abierto: true, desde: '09:00', hasta: '18:00' },
-    { dia: 'Viernes', abierto: true, desde: '09:00', hasta: '18:00' },
-    { dia: 'Sábado', abierto: true, desde: '09:00', hasta: '13:00' },
-    { dia: 'Domingo', abierto: false, desde: '09:00', hasta: '18:00' },
-  ],
-  mediosPago: ['Efectivo', 'débito', 'crédito'],
-};
 
 type Aviso = { tipo: 'ok' | 'error'; texto: string } | null;
 
@@ -207,10 +189,27 @@ function EditorHorarios({ horarios, onCerrar, onListo }: EditorHorariosProps): R
 export default function PerfilEditarNegocio(): React.JSX.Element {
   const navigate = useNavigate();
 
-  const [negocio, setNegocio] = useState<MiNegocio>(() => obtenerMiNegocio() ?? NEGOCIO_EJEMPLO);
+  const [negocio, setNegocio] = useState<MiNegocio | null>(null);
   const [aviso, setAviso] = useState<Aviso>(null);
   const [editandoHorarios, setEditandoHorarios] = useState(false);
-  const [promos] = useState(obtenerMisPromos);
+  const [promos, setPromos] = useState<PromoNegocio[]>([]);
+  const [guardando, setGuardando] = useState(false);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  const sesionEmpresa = haySesionEmpresa();
+
+  useEffect(() => {
+    if (!sesionEmpresa) return;
+    let cancelado = false;
+    obtenerMiNegocio()
+      .then((datos) => !cancelado && setNegocio(datos))
+      .catch((err) => !cancelado && setErrorCarga(mensajeDeError(err, 'No pudimos cargar tu negocio.')));
+    obtenerMisPromos()
+      .then((datos) => !cancelado && setPromos(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, [sesionEmpresa]);
 
   useEffect(() => {
     if (!aviso) return;
@@ -219,7 +218,7 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
   }, [aviso]);
 
   function cambiar(cambios: Partial<MiNegocio>) {
-    setNegocio((actual) => ({ ...actual, ...cambios }));
+    setNegocio((actual) => (actual ? { ...actual, ...cambios } : actual));
   }
 
   async function cambiarImagen(
@@ -236,17 +235,42 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
     }
   }
 
-  function guardar() {
-    const guardado = guardarMiNegocio({
-      ...negocio,
-      nombre: negocio.nombre.trim(),
-      descripcion: negocio.descripcion.trim(),
-      direccion: negocio.direccion.trim(),
-    });
-    setAviso(
-      guardado
-        ? { tipo: 'ok', texto: 'Cambios guardados' }
-        : { tipo: 'error', texto: 'No se pudieron guardar los cambios. Probá con imágenes más livianas.' },
+  async function guardar() {
+    if (!negocio || guardando) return;
+    setGuardando(true);
+    try {
+      const guardado = await guardarMiNegocio({
+        ...negocio,
+        nombre: negocio.nombre.trim(),
+        descripcion: negocio.descripcion.trim(),
+        direccion: negocio.direccion.trim(),
+      });
+      setNegocio(guardado);
+      setAviso({ tipo: 'ok', texto: 'Cambios guardados' });
+    } catch (err) {
+      setAviso({
+        tipo: 'error',
+        texto: mensajeDeError(err, 'No se pudieron guardar los cambios. Probá con imágenes más livianas.'),
+      });
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  if (!sesionEmpresa) return <Navigate to="/login" replace />;
+
+  if (!negocio) {
+    return (
+      <div className="tu-negocio">
+        <header className="tu-negocio__cabecera">
+          <button type="button" className="tu-negocio__volver" onClick={() => navigate(-1)}>
+            <ChevronLeft size={18} strokeWidth={2.4} />
+            Perfil
+          </button>
+          <h1 className="tu-negocio__titulo">Tu negocio</h1>
+          <p className="tu-negocio__bajada">{errorCarga ?? 'Cargando...'}</p>
+        </header>
+      </div>
     );
   }
 
@@ -419,8 +443,8 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
               {aviso.texto}
             </p>
           )}
-          <button type="submit" className="tu-negocio__guardar">
-            Guardar cambios
+          <button type="submit" className="tu-negocio__guardar" disabled={guardando}>
+            {guardando ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>

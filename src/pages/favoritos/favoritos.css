@@ -312,3 +312,58 @@
   color: #4cc27a;
   cursor: pointer;
 }
+
+.cargando {
+  display: block;
+  background: linear-gradient(90deg, #ece9f3 0%, #f7f5fb 50%, #ece9f3 100%);
+  background-size: 200% 100%;
+  animation: cargando-brillo 1.2s ease-in-out infinite;
+}
+
+.cargando__linea {
+  width: 100%;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+}
+
+.cargando__linea--media {
+  width: 70%;
+}
+
+.cargando__linea--corta {
+  width: 45%;
+}
+
+@keyframes cargando-brillo {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cargando {
+    animation: none;
+  }
+}
+
+.favoritos__cargando {
+  margin-top: 18px;
+}
+
+.favorito--cargando {
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom-color: #ece9f3;
+}
+
+.favorito--cargando .favorito__textos {
+  gap: 2px;
+}
+
+.favorito--cargando .cargando__linea:first-child {
+  margin-top: 0;
+}

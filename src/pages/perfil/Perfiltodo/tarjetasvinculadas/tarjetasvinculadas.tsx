@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Lock, CreditCard } from 'lucide-react';
 import Barra from '../../../../components/barra';
 import {
   obtenerTarjetas,
   quitarTarjeta,
+  sincronizarTarjetas,
   type Marca,
   type TarjetaVinculada,
   type TipoTarjeta,
@@ -31,10 +32,22 @@ export default function TarjetasVinculadas(): React.JSX.Element {
 
   const cantidad = tarjetas.length;
 
+  useEffect(() => {
+    let cancelado = false;
+    sincronizarTarjetas()
+      .then((datos) => !cancelado && setTarjetas(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
   if (!obtenerUsuario()) return <Navigate to="/perfil" replace />;
 
   function quitar(id: string) {
-    setTarjetas(quitarTarjeta(id));
+    quitarTarjeta(id)
+      .then(setTarjetas)
+      .catch(() => {});
   }
 
   return (
