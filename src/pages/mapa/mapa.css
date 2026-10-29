@@ -126,3 +126,233 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.icono-local {
+  position: relative;
+}
+
+.icono-local__promo {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 150px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background-color: #2a1a5e;
+  box-shadow: 0 2px 6px rgba(15, 6, 40, 0.3);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.icono-local__mas {
+  padding: 0 5px;
+  border-radius: 999px;
+  background-color: #16803c;
+  font-size: 0.62rem;
+}
+
+.mapa-promos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapa-promo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e4def2;
+  border-radius: 10px;
+  background-color: #f6f3fc;
+  color: #2a1a5e;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapa-promo:hover {
+  background-color: #ece6f8;
+}
+
+.mapa-promo__textos {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mapa-promo__descuento {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #16803c;
+}
+
+.mapa-promo__descripcion {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #6b6480;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mapa-sin-promos {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: #6b6480;
+}
+
+.mapa-lienzo--con-promos .leaflet-bottom {
+  bottom: calc(var(--espacio-barra) + 112px);
+}
+
+.mapa-puntuacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  font-weight: 600;
+  color: #2a1a5e;
+}
+
+.mapa-promos-cerca {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--espacio-barra);
+  z-index: 500;
+  padding: 0 0 8px;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.mapa-promos-cerca__titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px 16px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #2a1a5e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.mapa-promos-cerca__cantidad {
+  padding: 0 6px;
+  border-radius: 999px;
+  background-color: #22c55e;
+  font-size: 0.66rem;
+}
+
+.mapa-promos-cerca__lista {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 2px 16px 4px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.mapa-promos-cerca__lista::-webkit-scrollbar {
+  display: none;
+}
+
+.mapa-promos-cerca__lista > li {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.mapa-tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 220px;
+  height: 72px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 14px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 6, 40, 0.2);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapa-tarjeta__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #f1eef8;
+  color: #6b5a8e;
+}
+
+.mapa-tarjeta__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mapa-tarjeta__textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mapa-tarjeta__descuento,
+.mapa-tarjeta__local {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mapa-tarjeta__descuento {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #16803c;
+}
+
+.mapa-tarjeta__local {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #2a1a5e;
+}
+
+.mapa-tarjeta__distancia {
+  font-size: 0.7rem;
+  color: #6b6480;
+}
+
+.mapa-promos-cerca__vacio {
+  margin: 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 6, 40, 0.2);
+  font-size: 0.78rem;
+  color: #6b6480;
+}

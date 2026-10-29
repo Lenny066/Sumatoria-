@@ -48,7 +48,18 @@ export type Negocio = {
   lng: number;
   horarios: Horario[];
   promociones: Promocion[];
+  puntuacion?: number;
 };
+
+export const RUBROS: Rubro[] = [
+  'Gastronomía',
+  'Indumentaria',
+  'Supermercado',
+  'Electrodomésticos',
+  'Farmacia',
+  'Librería',
+  'Otro',
+];
 
 export type EstadoHorario = {
   abierto: boolean;
@@ -89,6 +100,7 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '1',
     nombre: 'Panadería Norte',
+    puntuacion: 4.7,
     rubro: 'Gastronomía',
     logo: '/logos/panaderia-norte.svg',
     direccion: 'Av. Cabildo 2140',
@@ -117,6 +129,7 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '2',
     nombre: 'Farmacia Central',
+    puntuacion: 4.2,
     rubro: 'Farmacia',
     logo: '/logos/farmacia-central.svg',
     direccion: 'Av. Santa Fe 3250',
@@ -137,6 +150,7 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '3',
     nombre: 'Moda Urbana',
+    puntuacion: 4.5,
     rubro: 'Indumentaria',
     logo: '/logos/moda-urbana.svg',
     direccion: 'Av. Corrientes 4520',
@@ -165,6 +179,7 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '4',
     nombre: 'Súper Ahorro',
+    puntuacion: 3.9,
     rubro: 'Supermercado',
     logo: '/logos/super-ahorro.svg',
     direccion: 'Av. Rivadavia 6100',
@@ -185,6 +200,7 @@ const NEGOCIOS_PRUEBA: Negocio[] = [
   {
     id: '5',
     nombre: 'Café del Parque',
+    puntuacion: 4.8,
     rubro: 'Gastronomía',
     logo: '/logos/cafe-del-parque.svg',
     direccion: 'Av. Sarmiento 2601',
@@ -269,18 +285,21 @@ export async function obtenerSeccionesInicio(): Promise<SeccionesInicio> {
   };
 }
 
-export async function buscarNegocios(texto: string): Promise<Negocio[]> {
+export function coincideBusqueda(negocio: Negocio, texto: string): boolean {
   const busqueda = normalizar(texto);
-  if (!busqueda) return [];
+  if (!busqueda) return true;
+  return [
+    negocio.nombre,
+    negocio.rubro,
+    ...negocio.promociones.flatMap((promo) => [promo.descuento, promo.descripcion ?? '']),
+  ].some((campo) => normalizar(campo).includes(busqueda));
+}
+
+export async function buscarNegocios(texto: string): Promise<Negocio[]> {
+  if (!normalizar(texto)) return [];
   const encontrados = API_URL
     ? await pedir<Negocio[]>(`/negocios?buscar=${encodeURIComponent(texto.trim())}`)
-    : NEGOCIOS_PRUEBA.filter((negocio) =>
-        [
-          negocio.nombre,
-          negocio.rubro,
-          ...negocio.promociones.flatMap((promo) => [promo.descuento, promo.descripcion ?? '']),
-        ].some((campo) => normalizar(campo).includes(busqueda)),
-      );
+    : NEGOCIOS_PRUEBA.filter((negocio) => coincideBusqueda(negocio, texto));
   return encontrados.map(filtrarPorMisTarjetas);
 }
 
@@ -330,7 +349,7 @@ export function calcularEstadoHorario(horarios: Horario[], ahora = new Date()): 
   return { abierto: false, texto: 'Cerrado' };
 }
 
-export function calcularDistancia(desde: [number, number], hasta: [number, number]): string {
+export function distanciaKm(desde: [number, number], hasta: [number, number]): number {
   const radioTierraKm = 6371;
   const aRadianes = (grados: number) => (grados * Math.PI) / 180;
   const dLat = aRadianes(hasta[0] - desde[0]);
@@ -338,8 +357,11 @@ export function calcularDistancia(desde: [number, number], hasta: [number, numbe
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(aRadianes(desde[0])) * Math.cos(aRadianes(hasta[0])) * Math.sin(dLng / 2) ** 2;
-  const km = radioTierraKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return `${km.toFixed(1)} km`;
+  return radioTierraKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function calcularDistancia(desde: [number, number], hasta: [number, number]): string {
+  return `${distanciaKm(desde, hasta).toFixed(1)} km`;
 }
 
 // ----- Negocios que sigo -----

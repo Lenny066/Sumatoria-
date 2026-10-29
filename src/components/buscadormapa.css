@@ -56,12 +56,15 @@
   color: #9a94a8;
 }
 
-.buscador__filtros {
+.buscador__filtros-zona {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 500;
+}
+
+.buscador__filtros {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -98,4 +101,90 @@
 .chip__icono {
   display: flex;
   flex-shrink: 0;
+}
+
+.chip--activo {
+  background-color: #2a1a5e;
+  color: #ffffff;
+}
+
+.chip__cantidad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background-color: #22c55e;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.buscador__borrar {
+  display: flex;
+  flex-shrink: 0;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: #8e8899;
+  cursor: pointer;
+}
+
+.buscador__panel {
+  margin: 0 16px;
+  padding: 12px 14px 14px;
+  border-radius: 14px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 6, 40, 0.2);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.buscador__panel-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.buscador__panel-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2a1a5e;
+}
+
+.buscador__panel-limpiar {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #16803c;
+  cursor: pointer;
+}
+
+.buscador__rubros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.buscador__rubro {
+  padding: 7px 12px;
+  border: 1px solid #e4def2;
+  border-radius: 999px;
+  background-color: #f6f3fc;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2a1a5e;
+  cursor: pointer;
+}
+
+.buscador__rubro--activo {
+  border-color: #2a1a5e;
+  background-color: #2a1a5e;
+  color: #ffffff;
 }

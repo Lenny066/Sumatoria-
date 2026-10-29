@@ -1,20 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
-import { MapPin } from 'lucide-react';
+import { ChevronRight, MapPin, Star, Tag } from 'lucide-react';
 import Barra from '../../components/barra';
-import BuscadorMapa, { FiltrosMapa } from '../../components/BuscadorMapa';
+import BuscadorMapa, { FiltrosMapa, type FiltroRapido } from '../../components/BuscadorMapa';
+import DetallePromo from '../../components/DetallePromo';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import {
   calcularDistancia,
+  calcularEstadoHorario,
+  cambiarPromoGuardada,
+  coincideBusqueda,
+  distanciaKm,
+  estaGuardada,
   obtenerNegocios,
+  obtenerPromosGuardadas,
+  sincronizarPromosGuardadas,
   type Negocio,
+  type Promocion,
   type Rubro,
 } from '../../services/negociosService';
+import { obtenerUsuario } from '../../services/usuarioService';
 import './mapa.css';
 
 const customIcon: L.Icon = L.icon({
@@ -32,6 +42,8 @@ const ARGENTINA_BOUNDS: L.LatLngBoundsExpression = [
 const CENTRO_POR_DEFECTO: [number, number] = [-34.6037, -58.3816];
 const ZOOM_POR_DEFECTO = 12;
 const ZOOM_UBICADO = 15;
+const RADIO_CERCA_KM = 3;
+const PUNTUACION_MINIMA = 4.5;
 
 const COLORES_POR_RUBRO: Record<Rubro, string> = {
   'Gastronomía': '#e67e22',
@@ -43,11 +55,25 @@ const COLORES_POR_RUBRO: Record<Rubro, string> = {
   'Otro': '#3498db',
 };
 
-function crearIconoLocal(rubro: Rubro): L.DivIcon {
-  const color = COLORES_POR_RUBRO[rubro] ?? COLORES_POR_RUBRO.Otro;
+function escaparHtml(texto: string): string {
+  return texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function crearIconoLocal(local: Negocio): L.DivIcon {
+  const color = COLORES_POR_RUBRO[local.rubro] ?? COLORES_POR_RUBRO.Otro;
+  const [principal, ...resto] = local.promociones;
+  const etiqueta = principal
+    ? `<span class="icono-local__promo">${escaparHtml(principal.descuento)}${
+        resto.length > 0 ? `<span class="icono-local__mas">+${resto.length}</span>` : ''
+      }</span>`
+    : '';
   return L.divIcon({
     className: 'icono-local',
-    html: `<div style="
+    html: `${etiqueta}<div style="
       background:${color};
       width:16px;
       height:16px;
@@ -95,6 +121,42 @@ export default function Mapa(): React.JSX.Element {
   const [locales, setLocales] = useState<Negocio[]>([]);
   const [cargandoLocales, setCargandoLocales] = useState(true);
   const [errorLocales, setErrorLocales] = useState<string | null>(null);
+  const [guardadas, setGuardadas] = useState(obtenerPromosGuardadas);
+  const [abierta, setAbierta] = useState<{ negocio: Negocio; promo: Promocion } | null>(null);
+  const [busqueda, setBusqueda] = useState('');
+  const [filtros, setFiltros] = useState<FiltroRapido[]>([]);
+  const [rubros, setRubros] = useState<Rubro[]>([]);
+  const [panelAbierto, setPanelAbierto] = useState(false);
+
+  const verLocal = useCallback(
+    (local: Negocio) =>
+      navigate(`/negocio/${local.id}`, {
+        state: {
+          distancia: posicion ? calcularDistancia(posicion, [local.lat, local.lng]) : undefined,
+        },
+      }),
+    [navigate, posicion],
+  );
+
+  function alternarGuardada(negocio: Negocio, promo: Promocion) {
+    if (!obtenerUsuario()) {
+      navigate('/login');
+      return;
+    }
+    cambiarPromoGuardada(negocio.id, promo.id, !estaGuardada(guardadas, negocio.id, promo.id))
+      .then(setGuardadas)
+      .catch(() => {});
+  }
+
+  useEffect(() => {
+    let cancelado = false;
+    sincronizarPromosGuardadas()
+      .then((datos) => !cancelado && setGuardadas(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   const activarUbicacion = useCallback(() => {
     setErrorUbicacion(null);
@@ -151,14 +213,62 @@ export default function Mapa(): React.JSX.Element {
       .finally(() => setCargandoLocales(false));
   }, []);
 
+  function cambiarFiltro(filtro: FiltroRapido) {
+    const activo = filtros.includes(filtro);
+    if (filtro === 'cerca' && !activo && !posicion) activarUbicacion();
+    setFiltros(activo ? filtros.filter((f) => f !== filtro) : [...filtros, filtro]);
+  }
+
+  function cambiarRubro(rubro: Rubro) {
+    setRubros(rubros.includes(rubro) ? rubros.filter((r) => r !== rubro) : [...rubros, rubro]);
+  }
+
+  const localesFiltrados = useMemo(() => {
+    const ahora = new Date();
+    return locales.filter(
+      (local) =>
+        coincideBusqueda(local, busqueda) &&
+        (rubros.length === 0 || rubros.includes(local.rubro)) &&
+        (!filtros.includes('cerca') ||
+          !posicion ||
+          distanciaKm(posicion, [local.lat, local.lng]) <= RADIO_CERCA_KM) &&
+        (!filtros.includes('abierto') ||
+          calcularEstadoHorario(local.horarios, ahora)?.abierto === true) &&
+        (!filtros.includes('puntuados') || (local.puntuacion ?? 0) >= PUNTUACION_MINIMA),
+    );
+  }, [locales, busqueda, rubros, filtros, posicion]);
+
+  const promosVisibles = useMemo(() => {
+    const lista = localesFiltrados.flatMap((negocio) =>
+      negocio.promociones.map((promo) => ({
+        negocio,
+        promo,
+        km: posicion ? distanciaKm(posicion, [negocio.lat, negocio.lng]) : null,
+      })),
+    );
+    if (filtros.includes('puntuados')) {
+      return lista.sort((a, b) => (b.negocio.puntuacion ?? 0) - (a.negocio.puntuacion ?? 0));
+    }
+    return posicion ? lista.sort((a, b) => (a.km ?? 0) - (b.km ?? 0)) : lista;
+  }, [localesFiltrados, filtros, posicion]);
+
+  const hayFiltros = busqueda.trim() !== '' || rubros.length > 0 || filtros.length > 0;
   const mostrarInvitacion = estado !== 'activa';
 
   return (
     <div className="mapa-pantalla">
-      <BuscadorMapa />
+      <BuscadorMapa busqueda={busqueda} onBuscar={setBusqueda} />
 
-      <div className="mapa-lienzo">
-        <FiltrosMapa />
+      <div className={`mapa-lienzo${!cargandoLocales && !errorLocales ? ' mapa-lienzo--con-promos' : ''}`}>
+        <FiltrosMapa
+          activos={filtros}
+          onCambiarFiltro={cambiarFiltro}
+          rubros={rubros}
+          onCambiarRubro={cambiarRubro}
+          onLimpiarRubros={() => setRubros([])}
+          panelAbierto={panelAbierto}
+          onAlternarPanel={() => setPanelAbierto(!panelAbierto)}
+        />
 
         {errorLocales && (
           <p className="mapa-error-locales">{errorLocales}</p>
@@ -191,31 +301,51 @@ export default function Mapa(): React.JSX.Element {
 
           {!cargandoLocales && (
             <MarkerClusterGroup chunkedLoading>
-              {locales.map((local) => (
+              {localesFiltrados.map((local) => (
                 <Marker
                   key={local.id}
                   position={[local.lat, local.lng]}
-                  icon={crearIconoLocal(local.rubro)}
+                  icon={crearIconoLocal(local)}
                 >
                   <Popup>
                     <div style={{ fontSize: '0.9rem' }}>
                       <b>{local.nombre}</b><br />
                       {local.rubro}
+                      {local.puntuacion !== undefined && (
+                        <span className="mapa-puntuacion">
+                          <Star size={12} color="#f5b301" fill="#f5b301" strokeWidth={1.6} />
+                          {local.puntuacion.toFixed(1)}
+                        </span>
+                      )}
                       <br />
                       {local.direccion}
-                      <br />
+                      {local.promociones.length > 0 ? (
+                        <ul className="mapa-promos">
+                          {local.promociones.map((promo) => (
+                            <li key={promo.id}>
+                              <button
+                                type="button"
+                                className="mapa-promo"
+                                onClick={() => setAbierta({ negocio: local, promo })}
+                              >
+                                <span className="mapa-promo__textos">
+                                  <span className="mapa-promo__descuento">{promo.descuento}</span>
+                                  {promo.descripcion && (
+                                    <span className="mapa-promo__descripcion">{promo.descripcion}</span>
+                                  )}
+                                </span>
+                                <ChevronRight size={16} strokeWidth={2.2} />
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mapa-sin-promos">Este local no tiene promos por ahora.</p>
+                      )}
                       <button
                         type="button"
                         className="mapa-ver-local"
-                        onClick={() =>
-                          navigate(`/negocio/${local.id}`, {
-                            state: {
-                              distancia: posicion
-                                ? calcularDistancia(posicion, [local.lat, local.lng])
-                                : undefined,
-                            },
-                          })
-                        }
+                        onClick={() => verLocal(local)}
                       >
                         Ver local
                       </button>
@@ -226,6 +356,49 @@ export default function Mapa(): React.JSX.Element {
             </MarkerClusterGroup>
           )}
         </MapContainer>
+
+        {!cargandoLocales && !errorLocales && (
+          <section className="mapa-promos-cerca" aria-label="Promos en el mapa">
+            <p className="mapa-promos-cerca__titulo">
+              {posicion ? 'Promos cerca tuyo' : 'Promos en el mapa'}
+              <span className="mapa-promos-cerca__cantidad">{promosVisibles.length}</span>
+            </p>
+            {promosVisibles.length > 0 ? (
+              <ul className="mapa-promos-cerca__lista">
+                {promosVisibles.map(({ negocio, promo, km }) => (
+                  <li key={`${negocio.id}-${promo.id}`}>
+                    <button
+                      type="button"
+                      className="mapa-tarjeta"
+                      onClick={() => setAbierta({ negocio, promo })}
+                    >
+                      <span className="mapa-tarjeta__logo">
+                        {negocio.logo ? (
+                          <img src={negocio.logo} alt="" />
+                        ) : (
+                          <Tag size={16} strokeWidth={2} />
+                        )}
+                      </span>
+                      <span className="mapa-tarjeta__textos">
+                        <span className="mapa-tarjeta__descuento">{promo.descuento}</span>
+                        <span className="mapa-tarjeta__local">{negocio.nombre}</span>
+                        {km !== null && (
+                          <span className="mapa-tarjeta__distancia">{km.toFixed(1)} km</span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mapa-promos-cerca__vacio">
+                {hayFiltros
+                  ? 'No hay promos con esos filtros. Probá sacando alguno.'
+                  : 'Todavía no hay promos en el mapa.'}
+              </p>
+            )}
+          </section>
+        )}
 
         {mostrarInvitacion && (
           <div className="geo">
@@ -256,10 +429,19 @@ export default function Mapa(): React.JSX.Element {
         )}
       </div>
 
+      {abierta && (
+        <DetallePromo
+          promo={abierta.promo}
+          negocio={abierta.negocio}
+          guardada={estaGuardada(guardadas, abierta.negocio.id, abierta.promo.id)}
+          onGuardar={() => alternarGuardada(abierta.negocio, abierta.promo)}
+          onCerrar={() => setAbierta(null)}
+          onVerLocal={() => verLocal(abierta.negocio)}
+        />
+      )}
+
       <Barra />
     </div>
   );
 }
 
-
-  //Escuchame, vas a hacer una nueva pantalla que va a ser la del perfil. Osea cuando vos en la barra de abajo le das a perfil, se va a abrir esta pantalla.Hay alguunas cosas en la imagen que vos no vas a poner.  La parte de los puntos no la pones. 
