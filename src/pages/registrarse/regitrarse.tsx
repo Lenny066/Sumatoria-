@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import BotonGoogle from "../../components/BotonGoogle";
+import CampoContrasena from "../../components/CampoContrasena";
 import { mensajeDeError } from "../../services/apiService";
 import { registrarUsuario } from "../../services/usuarioService";
 import "./registrarse.css";
@@ -85,11 +86,10 @@ export default function Registrarse() {
         />
 
         <label className="etiqueta-registro" htmlFor="password">Contraseña</label>
-        <input
+        <CampoContrasena
           className="campo-registro"
           id="password"
           name="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           value={password}

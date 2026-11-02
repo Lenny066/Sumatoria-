@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowLeftRight,
   Banknote,
   Bookmark,
   CalendarDays,
+  Check,
   ChevronRight,
   CreditCard,
   Tag,
@@ -12,6 +13,8 @@ import {
 } from 'lucide-react';
 import type { Negocio, Promocion, Rubro } from '../services/negociosService';
 import { esTarjeta, textoDias, textoMedioPago, type MedioPago } from '../services/promosService';
+import { ahorroDePromo, formatearPlata, puedeUsarPromos, usarPromo } from '../services/ahorroService';
+import { mensajeDeError } from '../services/apiService';
 import './detallepromo.css';
 
 const ICONOS_MEDIO = {
@@ -23,6 +26,92 @@ const ICONOS_MEDIO = {
 function IconoMedio({ medio }: { medio: MedioPago }): React.JSX.Element {
   const Icono = esTarjeta(medio) ? CreditCard : ICONOS_MEDIO[medio.tipo];
   return <Icono size={15} strokeWidth={2} />;
+}
+
+function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
+  const ahorroFijo = ahorroDePromo(promo);
+  const [preguntando, setPreguntando] = useState(false);
+  const [monto, setMonto] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sumado, setSumado] = useState<{ ahorro: number; mes: number } | null>(null);
+
+  async function confirmar(ahorro?: number) {
+    setEnviando(true);
+    setError(null);
+    try {
+      const respuesta = await usarPromo(promo.id, ahorro);
+      setSumado({ ahorro: respuesta.ahorro, mes: respuesta.mes });
+      setPreguntando(false);
+    } catch (err) {
+      setError(mensajeDeError(err, 'No pudimos sumar tu ahorro. Probá de nuevo.'));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  function enviarMonto(evento: React.SyntheticEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const numero = Number(monto.trim().replace(',', '.'));
+    if (!Number.isFinite(numero) || numero <= 0) {
+      setError('Escribí cuánto ahorraste, solo con números.');
+      return;
+    }
+    confirmar(numero);
+  }
+
+  if (sumado) {
+    return (
+      <div className="detalle-promo__usada" role="status">
+        <Check size={16} strokeWidth={2.6} />
+        <span>
+          Sumaste {formatearPlata(sumado.ahorro)}. Este mes llevás ahorrado {formatearPlata(sumado.mes)}.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="detalle-promo__usar">
+      {preguntando ? (
+        <form className="detalle-promo__monto" onSubmit={enviarMonto}>
+          <label className="detalle-promo__subtitulo" htmlFor="detalle-promo-monto">
+            ¿Cuánto ahorraste?
+          </label>
+          <div className="detalle-promo__monto-fila">
+            <input
+              id="detalle-promo-monto"
+              className="detalle-promo__monto-input"
+              type="text"
+              inputMode="decimal"
+              placeholder="$ 1500"
+              autoFocus
+              value={monto}
+              onChange={(evento) => setMonto(evento.target.value)}
+            />
+            <button type="submit" className="detalle-promo__monto-ok" disabled={enviando}>
+              {enviando ? 'Sumando...' : 'Sumar'}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button
+          type="button"
+          className="detalle-promo__usar-boton"
+          disabled={enviando}
+          onClick={() => (ahorroFijo !== null ? confirmar() : setPreguntando(true))}
+        >
+          <Check size={16} strokeWidth={2.4} />
+          {enviando
+            ? 'Sumando...'
+            : ahorroFijo !== null
+              ? `Usé esta promo · ahorré ${formatearPlata(ahorroFijo)}`
+              : 'Usé esta promo'}
+        </button>
+      )}
+      {error && <p className="detalle-promo__error">{error}</p>}
+    </div>
+  );
 }
 
 function textoVence(vence: string): string {
@@ -67,6 +156,7 @@ export default function DetallePromo({
 
   const dias = promo.dias && promo.dias.length > 0 ? textoDias(promo.dias) : null;
   const medios = promo.mediosPago ?? [];
+  const ahorro = ahorroDePromo(promo);
 
   return (
     <div className="detalle-promo" role="presentation" onClick={onCerrar}>
@@ -103,6 +193,14 @@ export default function DetallePromo({
           {promo.vence && <p className="detalle-promo__vence">{textoVence(promo.vence)}</p>}
 
           {promo.descripcion && <p className="detalle-promo__descripcion">{promo.descripcion}</p>}
+
+          {ahorro !== null && promo.precioReal !== undefined && promo.precioPromo !== undefined && (
+            <div className="detalle-promo__precios">
+              <span className="detalle-promo__precio-real">{formatearPlata(promo.precioReal)}</span>
+              <span className="detalle-promo__precio-promo">{formatearPlata(promo.precioPromo)}</span>
+              <span className="detalle-promo__precio-ahorro">Ahorrás {formatearPlata(ahorro)}</span>
+            </div>
+          )}
 
           {dias && (
             <div className="detalle-promo__seccion">
@@ -147,6 +245,8 @@ export default function DetallePromo({
               <ChevronRight size={18} strokeWidth={2.2} />
             </button>
           )}
+
+          {puedeUsarPromos() && <UsarPromo key={promo.id} promo={promo} />}
 
           <button
             type="button"

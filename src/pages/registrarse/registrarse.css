@@ -110,10 +110,6 @@
   font-size: clamp(0.85rem, 2vh, 0.95rem);
 }
 
-.campo-registro:last-of-type {
-  margin-bottom: 0;
-}
-
 .campo-registro::placeholder {
   color: #8A8A8A;
 }

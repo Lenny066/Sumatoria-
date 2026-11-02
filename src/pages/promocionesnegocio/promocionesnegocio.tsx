@@ -23,6 +23,7 @@ import {
   type EstadoPromo,
   type PromoNegocio,
 } from '../../services/miNegocioService';
+import { ahorroDePromo, formatearPlata } from '../../services/ahorroService';
 import './promocionesnegocio.css';
 
 type Filtro = 'todas' | EstadoPromo;
@@ -57,6 +58,13 @@ const TARJETA_VACIA: TarjetaNueva = { tipo: 'debito', marca: '', banco: '' };
 
 const MAXIMO_DESCRIPCION = 200;
 
+function aNumero(texto: string): number | undefined {
+  const limpio = texto.trim().replace(',', '.');
+  if (limpio === '') return undefined;
+  const numero = Number(limpio);
+  return Number.isFinite(numero) && numero >= 0 ? numero : NaN;
+}
+
 type EditorPromoProps = {
   promo: PromoNegocio;
   nueva: boolean;
@@ -73,6 +81,8 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
   const [mediosPago, setMediosPago] = useState<MedioPago[]>(promo.mediosPago);
   const [tarjetaNueva, setTarjetaNueva] = useState<TarjetaNueva | null>(null);
   const [errorImagen, setErrorImagen] = useState(false);
+  const [precioReal, setPrecioReal] = useState(promo.precioReal?.toString() ?? '');
+  const [precioPromo, setPrecioPromo] = useState(promo.precioPromo?.toString() ?? '');
 
   useEffect(() => {
     function alApretarTecla(evento: KeyboardEvent) {
@@ -129,8 +139,24 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
 
   const tarjetas = mediosPago.filter(esTarjeta);
 
+  const real = aNumero(precioReal);
+  const conPromo = aNumero(precioPromo);
+  const ahorro =
+    real !== undefined && conPromo !== undefined ? ahorroDePromo({ precioReal: real, precioPromo: conPromo }) : null;
+  const errorPrecios =
+    real === undefined && conPromo === undefined
+      ? null
+      : Number.isNaN(real) || Number.isNaN(conPromo)
+        ? 'Escribí los precios solo con números.'
+        : real === undefined || conPromo === undefined
+          ? 'Completá los dos precios para mostrar cuánto se ahorra.'
+          : ahorro === null
+            ? 'El precio con la promo tiene que ser menor al precio real.'
+            : null;
+
   function guardar(evento: React.SyntheticEvent<HTMLFormElement>) {
     evento.preventDefault();
+    if (errorPrecios) return;
     onGuardar({
       ...promo,
       titulo: titulo.trim(),
@@ -144,6 +170,8 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
         ...tarjetas,
       ],
       vence: vence || undefined,
+      precioReal: real,
+      precioPromo: conPromo,
     });
   }
 
@@ -378,7 +406,46 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
           />
         </label>
 
-        <button type="submit" className="editor-promo__guardar" disabled={titulo.trim() === '' || dias.length === 0 || mediosPago.length === 0}>
+        <div className="editor-promo__campo">
+          <span className="editor-promo__etiqueta">
+            Precios <span className="editor-promo__opcional">(opcional)</span>
+          </span>
+          <div className="editor-promo__precios">
+            <label className="editor-promo__precio">
+              <span className="editor-promo__ayuda">Precio real</span>
+              <input
+                className="editor-promo__input"
+                type="text"
+                inputMode="decimal"
+                placeholder="$ 10000"
+                value={precioReal}
+                onChange={(evento) => setPrecioReal(evento.target.value)}
+              />
+            </label>
+            <label className="editor-promo__precio">
+              <span className="editor-promo__ayuda">Con la promo</span>
+              <input
+                className="editor-promo__input"
+                type="text"
+                inputMode="decimal"
+                placeholder="$ 8000"
+                value={precioPromo}
+                onChange={(evento) => setPrecioPromo(evento.target.value)}
+              />
+            </label>
+          </div>
+          {errorPrecios ? (
+            <span className="editor-promo__error">{errorPrecios}</span>
+          ) : ahorro !== null ? (
+            <span className="editor-promo__ahorro">Se ahorra {formatearPlata(ahorro)}</span>
+          ) : (
+            <span className="editor-promo__ayuda">
+              Si los cargás, a tus clientes se les suma solo lo que ahorraron
+            </span>
+          )}
+        </div>
+
+        <button type="submit" className="editor-promo__guardar" disabled={titulo.trim() === '' || dias.length === 0 || mediosPago.length === 0 || errorPrecios !== null}>
           {nueva ? 'Publicar' : 'Guardar'}
         </button>
       </form>
@@ -495,7 +562,12 @@ export default function PromocionesNegocio(): React.JSX.Element {
           <ul className="promos-negocio__lista">
             {visibles.map((promo) => {
               const activa = promo.estado === 'activa';
-              const detalle = [textoDias(promo.dias), promo.vence ? textoVence(promo.vence) : null]
+              const ahorroPromo = ahorroDePromo(promo);
+              const detalle = [
+                textoDias(promo.dias),
+                promo.vence ? textoVence(promo.vence) : null,
+                ahorroPromo !== null ? `ahorro ${formatearPlata(ahorroPromo)}` : null,
+              ]
                 .filter(Boolean)
                 .join(' · ');
 

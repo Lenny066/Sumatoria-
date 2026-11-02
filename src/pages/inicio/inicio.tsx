@@ -34,6 +34,7 @@ import {
   type SeccionesInicio,
 } from '../../services/negociosService';
 import { hayNotificacionesSinLeer } from '../../services/notificacionesService';
+import { AHORRO_VACIO, escucharAhorro, formatearPlata, obtenerAhorro } from '../../services/ahorroService';
 import './inicio.css';
 
 type Categoria = {
@@ -180,6 +181,7 @@ export default function Inicio(): React.JSX.Element {
   const [sinLeer, setSinLeer] = useState(false);
   const [guardadas, setGuardadas] = useState(obtenerPromosGuardadas);
   const [abierta, setAbierta] = useState<PromoDeLocal | null>(null);
+  const [ahorro, setAhorro] = useState(AHORRO_VACIO);
 
   const buscando = busqueda.trim() !== '';
   const categoriaActiva = CATEGORIAS.find(({ id }) => id === categoria) ?? CATEGORIAS[0];
@@ -193,6 +195,18 @@ export default function Inicio(): React.JSX.Element {
       .catch(() => {});
     return () => {
       cancelado = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelado = false;
+    obtenerAhorro()
+      .then((datos) => !cancelado && setAhorro(datos))
+      .catch(() => {});
+    const dejarDeEscuchar = escucharAhorro(setAhorro);
+    return () => {
+      cancelado = true;
+      dejarDeEscuchar();
     };
   }, []);
 
@@ -317,9 +331,13 @@ export default function Inicio(): React.JSX.Element {
         <div className="inicio__tarjetas">
           <section className="tarjeta-ahorro">
             <p className="tarjeta-ahorro__rotulo">Ahorraste este mes</p>
-            <p className="tarjeta-ahorro__monto">$0</p>
+            <p className="tarjeta-ahorro__monto">{formatearPlata(ahorro.mes)}</p>
             <p className="tarjeta-ahorro__ayuda">
-              Empezá a canjear promos para ver tu ahorro acá
+              {ahorro.usosMes === 0
+                ? 'Tocá "Usé esta promo" cuando canjees una para ver tu ahorro acá'
+                : ahorro.usosMes === 1
+                  ? 'Usaste 1 promo este mes'
+                  : `Usaste ${ahorro.usosMes} promos este mes`}
             </p>
           </section>
 

@@ -13,6 +13,8 @@ export type PromoNegocio = {
   mediosPago: MedioPago[];
   vence?: string;
   estado: EstadoPromo;
+  precioReal?: number;
+  precioPromo?: number;
 };
 
 export type MiNegocio = {
@@ -63,8 +65,28 @@ export function obtenerMisPromos(): Promise<PromoNegocio[]> {
   return pedirApi<PromoNegocio[]>('/empresa/promos');
 }
 
-function datosDePromo({ titulo, descripcion, imagen, dias, mediosPago, vence, estado }: PromoNegocio) {
-  return { titulo, descripcion, imagen: imagen ?? null, dias, mediosPago, vence: vence ?? null, estado };
+function datosDePromo({
+  titulo,
+  descripcion,
+  imagen,
+  dias,
+  mediosPago,
+  vence,
+  estado,
+  precioReal,
+  precioPromo,
+}: PromoNegocio) {
+  return {
+    titulo,
+    descripcion,
+    imagen: imagen ?? null,
+    dias,
+    mediosPago,
+    vence: vence ?? null,
+    estado,
+    precioReal: precioReal ?? null,
+    precioPromo: precioPromo ?? null,
+  };
 }
 
 export function crearPromo(promo: PromoNegocio): Promise<PromoNegocio> {

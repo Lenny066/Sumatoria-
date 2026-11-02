@@ -34,6 +34,8 @@ export type Promocion = {
   dias?: Dia[];
   mediosPago?: MedioPago[];
   vence?: string;
+  precioReal?: number;
+  precioPromo?: number;
 };
 
 export type Negocio = {

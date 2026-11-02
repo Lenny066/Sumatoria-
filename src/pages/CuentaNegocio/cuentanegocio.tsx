@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
+import CampoContrasena from "../../components/CampoContrasena";
 import { mensajeDeError } from "../../services/apiService";
 import { leerImagen, registrarNegocio } from "../../services/miNegocioService";
 import type { Horario, Rubro } from "../../services/negociosService";
@@ -233,11 +234,10 @@ export default function CuentaNegocio() {
         <label className="etiqueta-negocio" htmlFor="password-negocio">
           Contraseña
         </label>
-        <input
+        <CampoContrasena
           className="campo-negocio"
           id="password-negocio"
           name="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           required

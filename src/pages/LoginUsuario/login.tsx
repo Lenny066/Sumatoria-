@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import BotonGoogle from "../../components/BotonGoogle";
+import CampoContrasena from "../../components/CampoContrasena";
 import { mensajeDeError } from "../../services/apiService";
 import { cerrarSesion, iniciarSesion } from "../../services/usuarioService";
 import "./login.css";
@@ -54,11 +55,10 @@ export default function Login() {
         />
 
         <label className="etiqueta-login" htmlFor="password">Contraseña</label>
-        <input
+        <CampoContrasena
           className="campo-login"
           id="password"
           name="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           value={password}

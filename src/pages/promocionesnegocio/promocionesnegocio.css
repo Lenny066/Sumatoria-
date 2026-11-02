@@ -625,3 +625,28 @@
     transform: translateY(100%);
   }
 }
+
+.editor-promo__precios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.editor-promo__precio {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.editor-promo__precio .editor-promo__input {
+  width: 100%;
+  min-width: 0;
+}
+
+.editor-promo__ahorro {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1f7a3a;
+}

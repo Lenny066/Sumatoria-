@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Pencil,
@@ -13,9 +13,8 @@ import {
 import Barra from '../../components/barra';
 import InvitarCuenta from '../../components/InvitarCuenta';
 import { cerrarSesion, obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
+import { AHORRO_VACIO, formatearPlata, obtenerAhorro } from '../../services/ahorroService';
 import './perfil.css';
-
-const AHORRO_TOTAL = '$0';
 
 type Opcion = {
   id: string;
@@ -34,6 +33,17 @@ const OPCIONES: Opcion[] = [
 export default function Perfil(): React.JSX.Element {
   const navigate = useNavigate();
   const usuario = obtenerUsuario();
+  const [ahorro, setAhorro] = useState(AHORRO_VACIO);
+
+  useEffect(() => {
+    let cancelado = false;
+    obtenerAhorro()
+      .then((datos) => !cancelado && setAhorro(datos))
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   if (!usuario) {
     return (
@@ -104,7 +114,8 @@ export default function Perfil(): React.JSX.Element {
 
             <span className="ahorro__textos">
               <span className="ahorro__etiqueta">Ahorro total</span>
-              <span className="ahorro__monto">{AHORRO_TOTAL}</span>
+              <span className="ahorro__monto">{formatearPlata(ahorro.total)}</span>
+              <span className="ahorro__mes">{formatearPlata(ahorro.mes)} este mes</span>
             </span>
 
             <ChevronRight className="ahorro__flecha" size={20} strokeWidth={2.4} />

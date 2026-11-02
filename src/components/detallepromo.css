@@ -212,6 +212,134 @@
   color: #1f7a3a;
 }
 
+.detalle-promo__precios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 12px;
+}
+
+.detalle-promo__precio-real {
+  font-size: 0.8rem;
+  color: #8a82a3;
+  text-decoration: line-through;
+}
+
+.detalle-promo__precio-promo {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1c1330;
+}
+
+.detalle-promo__precio-ahorro {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #dcf5e4;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1f7a3a;
+}
+
+.detalle-promo__usar {
+  margin-top: 16px;
+}
+
+.detalle-promo__usar + .detalle-promo__guardar {
+  margin-top: 8px;
+}
+
+.detalle-promo__usar-boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2a1a5e;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.detalle-promo__usar-boton:disabled,
+.detalle-promo__monto-ok:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.detalle-promo__monto {
+  display: flex;
+  flex-direction: column;
+}
+
+.detalle-promo__monto .detalle-promo__subtitulo {
+  display: block;
+}
+
+.detalle-promo__monto-fila {
+  display: flex;
+  gap: 8px;
+}
+
+.detalle-promo__monto-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  outline: none;
+  background-color: #f2f2f4;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #1c1330;
+}
+
+.detalle-promo__monto-input:focus {
+  border-color: #2a1a5e;
+}
+
+.detalle-promo__monto-ok {
+  flex-shrink: 0;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2a1a5e;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.detalle-promo__usada {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background-color: #ede7fb;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #2a1a5e;
+}
+
+.detalle-promo__usada + .detalle-promo__guardar {
+  margin-top: 8px;
+}
+
+.detalle-promo__error {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: #dc2f2f;
+}
+
 @keyframes detalle-promo-fondo {
   from {
     opacity: 0;
