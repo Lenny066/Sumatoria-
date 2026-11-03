@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Barra from '../../components/barra';
 import DetallePromo from '../../components/DetallePromo';
+import CargandoMonto from '../../components/CargandoMonto';
 import { obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import {
   buscarNegocios,
@@ -182,6 +183,7 @@ export default function Inicio(): React.JSX.Element {
   const [guardadas, setGuardadas] = useState(obtenerPromosGuardadas);
   const [abierta, setAbierta] = useState<PromoDeLocal | null>(null);
   const [ahorro, setAhorro] = useState(AHORRO_VACIO);
+  const [cargandoAhorro, setCargandoAhorro] = useState(true);
 
   const buscando = busqueda.trim() !== '';
   const categoriaActiva = CATEGORIAS.find(({ id }) => id === categoria) ?? CATEGORIAS[0];
@@ -202,7 +204,8 @@ export default function Inicio(): React.JSX.Element {
     let cancelado = false;
     obtenerAhorro()
       .then((datos) => !cancelado && setAhorro(datos))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => !cancelado && setCargandoAhorro(false));
     const dejarDeEscuchar = escucharAhorro(setAhorro);
     return () => {
       cancelado = true;
@@ -331,9 +334,13 @@ export default function Inicio(): React.JSX.Element {
         <div className="inicio__tarjetas">
           <section className="tarjeta-ahorro">
             <p className="tarjeta-ahorro__rotulo">Ahorraste este mes</p>
-            <p className="tarjeta-ahorro__monto">{formatearPlata(ahorro.mes)}</p>
+            <p className="tarjeta-ahorro__monto">
+              {cargandoAhorro ? <CargandoMonto clara ancho="7.5rem" alto="0.9em" /> : formatearPlata(ahorro.mes)}
+            </p>
             <p className="tarjeta-ahorro__ayuda">
-              {ahorro.usosMes === 0
+              {cargandoAhorro
+                ? <CargandoMonto clara ancho="11rem" alto="0.8em" />
+                : ahorro.usosMes === 0
                 ? 'Tocá "Usé esta promo" cuando canjees una para ver tu ahorro acá'
                 : ahorro.usosMes === 1
                   ? 'Usaste 1 promo este mes'

@@ -36,6 +36,7 @@ export type Promocion = {
   vence?: string;
   precioReal?: number;
   precioPromo?: number;
+  porcentaje?: number;
 };
 
 export type Negocio = {

@@ -24,6 +24,7 @@ import {
   type PromoNegocio,
 } from '../../services/miNegocioService';
 import { ahorroDePromo, formatearPlata } from '../../services/ahorroService';
+import CargandoMonto from '../../components/CargandoMonto';
 import './promocionesnegocio.css';
 
 type Filtro = 'todas' | EstadoPromo;
@@ -68,11 +69,12 @@ function aNumero(texto: string): number | undefined {
 type EditorPromoProps = {
   promo: PromoNegocio;
   nueva: boolean;
+  guardando: boolean;
   onCerrar: () => void;
   onGuardar: (promo: PromoNegocio) => void;
 };
 
-function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): React.JSX.Element {
+function EditorPromo({ promo, nueva, guardando, onCerrar, onGuardar }: EditorPromoProps): React.JSX.Element {
   const [titulo, setTitulo] = useState(promo.titulo);
   const [dias, setDias] = useState<Dia[]>(promo.dias);
   const [vence, setVence] = useState(promo.vence ?? '');
@@ -83,6 +85,10 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
   const [errorImagen, setErrorImagen] = useState(false);
   const [precioReal, setPrecioReal] = useState(promo.precioReal?.toString() ?? '');
   const [precioPromo, setPrecioPromo] = useState(promo.precioPromo?.toString() ?? '');
+  const [modoAhorro, setModoAhorro] = useState<'precio' | 'porcentaje'>(
+    promo.porcentaje !== undefined ? 'porcentaje' : 'precio',
+  );
+  const [porcentaje, setPorcentaje] = useState(promo.porcentaje?.toString() ?? '');
 
   useEffect(() => {
     function alApretarTecla(evento: KeyboardEvent) {
@@ -139,24 +145,31 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
 
   const tarjetas = mediosPago.filter(esTarjeta);
 
-  const real = aNumero(precioReal);
-  const conPromo = aNumero(precioPromo);
+  const real = modoAhorro === 'precio' ? aNumero(precioReal) : undefined;
+  const conPromo = modoAhorro === 'precio' ? aNumero(precioPromo) : undefined;
+  const porciento = modoAhorro === 'porcentaje' ? aNumero(porcentaje) : undefined;
   const ahorro =
     real !== undefined && conPromo !== undefined ? ahorroDePromo({ precioReal: real, precioPromo: conPromo }) : null;
   const errorPrecios =
-    real === undefined && conPromo === undefined
-      ? null
-      : Number.isNaN(real) || Number.isNaN(conPromo)
-        ? 'Escribí los precios solo con números.'
-        : real === undefined || conPromo === undefined
-          ? 'Completá los dos precios para mostrar cuánto se ahorra.'
-          : ahorro === null
-            ? 'El precio con la promo tiene que ser menor al precio real.'
-            : null;
+    modoAhorro === 'porcentaje'
+      ? porciento === undefined
+        ? null
+        : Number.isNaN(porciento) || porciento <= 0 || porciento >= 100
+          ? 'Escribí un porcentaje entre 1 y 99.'
+          : null
+      : real === undefined && conPromo === undefined
+        ? null
+        : Number.isNaN(real) || Number.isNaN(conPromo)
+          ? 'Escribí los precios solo con números.'
+          : real === undefined || conPromo === undefined
+            ? 'Completá los dos precios para mostrar cuánto se ahorra.'
+            : ahorro === null
+              ? 'El precio con la promo tiene que ser menor al precio real.'
+              : null;
 
   function guardar(evento: React.SyntheticEvent<HTMLFormElement>) {
     evento.preventDefault();
-    if (errorPrecios) return;
+    if (errorPrecios || guardando) return;
     onGuardar({
       ...promo,
       titulo: titulo.trim(),
@@ -172,6 +185,7 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
       vence: vence || undefined,
       precioReal: real,
       precioPromo: conPromo,
+      porcentaje: porciento,
     });
   }
 
@@ -408,45 +422,102 @@ function EditorPromo({ promo, nueva, onCerrar, onGuardar }: EditorPromoProps): R
 
         <div className="editor-promo__campo">
           <span className="editor-promo__etiqueta">
-            Precios <span className="editor-promo__opcional">(opcional)</span>
+            Ahorro <span className="editor-promo__opcional">(opcional)</span>
           </span>
-          <div className="editor-promo__precios">
-            <label className="editor-promo__precio">
-              <span className="editor-promo__ayuda">Precio real</span>
-              <input
-                className="editor-promo__input"
-                type="text"
-                inputMode="decimal"
-                placeholder="$ 10000"
-                value={precioReal}
-                onChange={(evento) => setPrecioReal(evento.target.value)}
-              />
-            </label>
-            <label className="editor-promo__precio">
-              <span className="editor-promo__ayuda">Con la promo</span>
-              <input
-                className="editor-promo__input"
-                type="text"
-                inputMode="decimal"
-                placeholder="$ 8000"
-                value={precioPromo}
-                onChange={(evento) => setPrecioPromo(evento.target.value)}
-              />
-            </label>
+          <div className="editor-promo__modos" role="radiogroup" aria-label="Cómo se calcula el ahorro">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={modoAhorro === 'precio'}
+              className={`editor-promo__modo${modoAhorro === 'precio' ? ' editor-promo__modo--activo' : ''}`}
+              onClick={() => setModoAhorro('precio')}
+            >
+              Precio fijo
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={modoAhorro === 'porcentaje'}
+              className={`editor-promo__modo${modoAhorro === 'porcentaje' ? ' editor-promo__modo--activo' : ''}`}
+              onClick={() => setModoAhorro('porcentaje')}
+            >
+              Porcentaje en todo
+            </button>
           </div>
-          {errorPrecios ? (
-            <span className="editor-promo__error">{errorPrecios}</span>
-          ) : ahorro !== null ? (
-            <span className="editor-promo__ahorro">Se ahorra {formatearPlata(ahorro)}</span>
+          {modoAhorro === 'porcentaje' ? (
+            <>
+              <label className="editor-promo__precio editor-promo__porcentaje">
+                <span className="editor-promo__ayuda">Descuento</span>
+                <span className="editor-promo__con-sufijo">
+                  <input
+                    className="editor-promo__input"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="20"
+                    value={porcentaje}
+                    onChange={(evento) => setPorcentaje(evento.target.value)}
+                  />
+                  <span className="editor-promo__sufijo">%</span>
+                </span>
+              </label>
+              {errorPrecios ? (
+                <span className="editor-promo__error">{errorPrecios}</span>
+              ) : (
+                <span className="editor-promo__ayuda">
+                  Para promos como "20% OFF en todo". Tus clientes ponen cuánto pagaron y se les calcula lo que ahorraron
+                </span>
+              )}
+            </>
           ) : (
-            <span className="editor-promo__ayuda">
-              Si los cargás, a tus clientes se les suma solo lo que ahorraron
-            </span>
+            <>
+              <div className="editor-promo__precios">
+                <label className="editor-promo__precio">
+                  <span className="editor-promo__ayuda">Precio real</span>
+                  <input
+                    className="editor-promo__input"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="$ 10000"
+                    value={precioReal}
+                    onChange={(evento) => setPrecioReal(evento.target.value)}
+                  />
+                </label>
+                <label className="editor-promo__precio">
+                  <span className="editor-promo__ayuda">Con la promo</span>
+                  <input
+                    className="editor-promo__input"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="$ 8000"
+                    value={precioPromo}
+                    onChange={(evento) => setPrecioPromo(evento.target.value)}
+                  />
+                </label>
+              </div>
+              {errorPrecios ? (
+                <span className="editor-promo__error">{errorPrecios}</span>
+              ) : ahorro !== null ? (
+                <span className="editor-promo__ahorro">Se ahorra {formatearPlata(ahorro)}</span>
+              ) : (
+                <span className="editor-promo__ayuda">
+                  Para un producto o combo, como un 2x1. A tus clientes se les suma solo lo que ahorraron
+                </span>
+              )}
+            </>
           )}
         </div>
 
-        <button type="submit" className="editor-promo__guardar" disabled={titulo.trim() === '' || dias.length === 0 || mediosPago.length === 0 || errorPrecios !== null}>
-          {nueva ? 'Publicar' : 'Guardar'}
+        <button type="submit" className="editor-promo__guardar" disabled={guardando || titulo.trim() === '' || dias.length === 0 || mediosPago.length === 0 || errorPrecios !== null}>
+          {guardando ? (
+            <span className="editor-promo__guardando">
+              <span className="editor-promo__ruedita" aria-hidden="true" />
+              {nueva ? 'Publicando...' : 'Guardando...'}
+            </span>
+          ) : nueva ? (
+            'Publicar'
+          ) : (
+            'Guardar'
+          )}
         </button>
       </form>
     </div>
@@ -460,6 +531,8 @@ export default function PromocionesNegocio(): React.JSX.Element {
   const [filtro, setFiltro] = useState<Filtro>('todas');
   const [editando, setEditando] = useState<{ promo: PromoNegocio; nueva: boolean } | null>(null);
   const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const sesionEmpresa = haySesionEmpresa();
 
   useEffect(() => {
@@ -467,7 +540,8 @@ export default function PromocionesNegocio(): React.JSX.Element {
     let cancelado = false;
     obtenerMisPromos()
       .then((datos) => !cancelado && setPromos(datos))
-      .catch((err) => !cancelado && setErrorGuardado(mensajeDeError(err, 'No pudimos cargar tus promociones.')));
+      .catch((err) => !cancelado && setErrorGuardado(mensajeDeError(err, 'No pudimos cargar tus promociones.')))
+      .finally(() => !cancelado && setCargando(false));
     return () => {
       cancelado = true;
     };
@@ -538,8 +612,14 @@ export default function PromocionesNegocio(): React.JSX.Element {
 
         <h1 className="promos-negocio__titulo">Promociones</h1>
         <p className="promos-negocio__bajada">
-          {textoCantidad(activas, 'activa', 'activas')} ·{' '}
-          {textoCantidad(pausadas, 'pausada', 'pausadas')}
+          {cargando ? (
+            <CargandoMonto clara ancho="10rem" alto="0.8em" />
+          ) : (
+            <>
+              {textoCantidad(activas, 'activa', 'activas')} ·{' '}
+              {textoCantidad(pausadas, 'pausada', 'pausadas')}
+            </>
+          )}
         </p>
 
         <div className="promos-negocio__filtros">
@@ -558,7 +638,22 @@ export default function PromocionesNegocio(): React.JSX.Element {
       </header>
 
       <div className="promos-negocio__scroll">
-        {visibles.length > 0 ? (
+        {cargando ? (
+          <ul className="promos-negocio__lista" aria-label="Cargando promociones">
+            {[0, 1, 2].map((indice) => (
+              <li key={indice} className="promo-negocio">
+                <div className="promo-negocio__encabezado">
+                  <CargandoMonto ancho="46px" alto="46px" />
+                  <div className="promo-negocio__cargando-textos">
+                    <CargandoMonto ancho="3.5rem" alto="0.7rem" />
+                    <CargandoMonto ancho="70%" alto="0.95rem" />
+                    <CargandoMonto ancho="50%" alto="0.7rem" />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : visibles.length > 0 ? (
           <ul className="promos-negocio__lista">
             {visibles.map((promo) => {
               const activa = promo.estado === 'activa';
@@ -566,7 +661,11 @@ export default function PromocionesNegocio(): React.JSX.Element {
               const detalle = [
                 textoDias(promo.dias),
                 promo.vence ? textoVence(promo.vence) : null,
-                ahorroPromo !== null ? `ahorro ${formatearPlata(ahorroPromo)}` : null,
+                ahorroPromo !== null
+                  ? `ahorro ${formatearPlata(ahorroPromo)}`
+                  : promo.porcentaje !== undefined
+                    ? `${promo.porcentaje}% en todo`
+                    : null,
               ]
                 .filter(Boolean)
                 .join(' · ');
@@ -656,11 +755,15 @@ export default function PromocionesNegocio(): React.JSX.Element {
         <EditorPromo
           promo={editando.promo}
           nueva={editando.nueva}
-          onCerrar={() => setEditando(null)}
+          guardando={guardando}
+          onCerrar={() => !guardando && setEditando(null)}
           onGuardar={(promo) => {
-            (editando.nueva ? agregar(promo) : actualizar(promo)).then((ok) => {
-              if (ok) setEditando(null);
-            });
+            setGuardando(true);
+            (editando.nueva ? agregar(promo) : actualizar(promo))
+              .then((ok) => {
+                if (ok) setEditando(null);
+              })
+              .finally(() => setGuardando(false));
           }}
         />
       )}

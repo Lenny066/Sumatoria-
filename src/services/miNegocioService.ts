@@ -15,6 +15,7 @@ export type PromoNegocio = {
   estado: EstadoPromo;
   precioReal?: number;
   precioPromo?: number;
+  porcentaje?: number;
 };
 
 export type MiNegocio = {
@@ -75,6 +76,7 @@ function datosDePromo({
   estado,
   precioReal,
   precioPromo,
+  porcentaje,
 }: PromoNegocio) {
   return {
     titulo,
@@ -86,6 +88,7 @@ function datosDePromo({
     estado,
     precioReal: precioReal ?? null,
     precioPromo: precioPromo ?? null,
+    porcentaje: porcentaje ?? null,
   };
 }
 

@@ -351,3 +351,10 @@
     transform: translateY(100%);
   }
 }
+
+.detalle-promo__calculo {
+  margin: 6px 0 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #1f7a3a;
+}

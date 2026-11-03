@@ -6,6 +6,12 @@ export type Ahorro = {
   usosMes: number;
 };
 
+export type AhorroMes = {
+  mes: string;
+  ahorro: number;
+  usos: number;
+};
+
 export const AHORRO_VACIO: Ahorro = { mes: 0, total: 0, usosMes: 0 };
 
 const EVENTO_AHORRO = 'sumatoria:ahorro';
@@ -30,10 +36,17 @@ export async function obtenerAhorro(): Promise<Ahorro> {
   return pedirApi<Ahorro>('/usuario/ahorro');
 }
 
-export async function usarPromo(promoId: string, ahorro?: number): Promise<Ahorro & { ahorro: number }> {
+export type DatosUso = { ahorro?: number; pagado?: number };
+
+export async function obtenerAhorroPorMes(): Promise<AhorroMes[]> {
+  if (!puedeUsarPromos()) return [];
+  return pedirApi<AhorroMes[]>('/usuario/ahorro/meses');
+}
+
+export async function usarPromo(promoId: string, datos: DatosUso = {}): Promise<Ahorro & { ahorro: number }> {
   const respuesta = await pedirApi<Ahorro & { ahorro: number }>(`/promos/${promoId}/usar`, {
     method: 'POST',
-    body: ahorro === undefined ? {} : { ahorro },
+    body: datos,
   });
   window.dispatchEvent(new CustomEvent<Ahorro>(EVENTO_AHORRO, { detail: respuesta }));
   return respuesta;
@@ -51,4 +64,8 @@ export function ahorroDePromo(promo: { precioReal?: number; precioPromo?: number
   if (promo.precioReal === undefined || promo.precioPromo === undefined) return null;
   const ahorro = promo.precioReal - promo.precioPromo;
   return ahorro > 0 ? ahorro : null;
+}
+
+export function ahorroPorPorcentaje(pagado: number, porcentaje: number): number {
+  return Math.round(((pagado * porcentaje) / (100 - porcentaje)) * 100) / 100;
 }

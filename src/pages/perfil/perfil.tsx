@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Barra from '../../components/barra';
 import InvitarCuenta from '../../components/InvitarCuenta';
+import CargandoMonto from '../../components/CargandoMonto';
 import { cerrarSesion, obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import { AHORRO_VACIO, formatearPlata, obtenerAhorro } from '../../services/ahorroService';
 import './perfil.css';
@@ -34,12 +35,14 @@ export default function Perfil(): React.JSX.Element {
   const navigate = useNavigate();
   const usuario = obtenerUsuario();
   const [ahorro, setAhorro] = useState(AHORRO_VACIO);
+  const [cargandoAhorro, setCargandoAhorro] = useState(true);
 
   useEffect(() => {
     let cancelado = false;
     obtenerAhorro()
       .then((datos) => !cancelado && setAhorro(datos))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => !cancelado && setCargandoAhorro(false));
     return () => {
       cancelado = true;
     };
@@ -107,15 +110,19 @@ export default function Perfil(): React.JSX.Element {
         </header>
 
         <main className="perfil__cuerpo">
-          <button type="button" className="ahorro">
+          <button type="button" className="ahorro" onClick={() => navigate('/mi-ahorro')}>
             <span className="ahorro__icono">
               <DollarSign size={20} strokeWidth={2.3} />
             </span>
 
             <span className="ahorro__textos">
               <span className="ahorro__etiqueta">Ahorro total</span>
-              <span className="ahorro__monto">{formatearPlata(ahorro.total)}</span>
-              <span className="ahorro__mes">{formatearPlata(ahorro.mes)} este mes</span>
+              <span className="ahorro__monto">
+                {cargandoAhorro ? <CargandoMonto ancho="6.5rem" alto="0.9em" /> : formatearPlata(ahorro.total)}
+              </span>
+              <span className="ahorro__mes">
+                {cargandoAhorro ? <CargandoMonto ancho="5rem" alto="0.8em" /> : `${formatearPlata(ahorro.mes)} este mes`}
+              </span>
             </span>
 
             <ChevronRight className="ahorro__flecha" size={20} strokeWidth={2.4} />

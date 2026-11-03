@@ -13,7 +13,14 @@ import {
 } from 'lucide-react';
 import type { Negocio, Promocion, Rubro } from '../services/negociosService';
 import { esTarjeta, textoDias, textoMedioPago, type MedioPago } from '../services/promosService';
-import { ahorroDePromo, formatearPlata, puedeUsarPromos, usarPromo } from '../services/ahorroService';
+import {
+  ahorroDePromo,
+  ahorroPorPorcentaje,
+  formatearPlata,
+  puedeUsarPromos,
+  usarPromo,
+  type DatosUso,
+} from '../services/ahorroService';
 import { mensajeDeError } from '../services/apiService';
 import './detallepromo.css';
 
@@ -30,17 +37,23 @@ function IconoMedio({ medio }: { medio: MedioPago }): React.JSX.Element {
 
 function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
   const ahorroFijo = ahorroDePromo(promo);
+  const porcentaje = ahorroFijo === null ? promo.porcentaje : undefined;
   const [preguntando, setPreguntando] = useState(false);
   const [monto, setMonto] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sumado, setSumado] = useState<{ ahorro: number; mes: number } | null>(null);
 
-  async function confirmar(ahorro?: number) {
+  const numero = Number(monto.trim().replace(',', '.'));
+  const montoValido = monto.trim() !== '' && Number.isFinite(numero) && numero > 0;
+  const ahorroCalculado =
+    porcentaje !== undefined && montoValido ? ahorroPorPorcentaje(numero, porcentaje) : null;
+
+  async function confirmar(datos?: DatosUso) {
     setEnviando(true);
     setError(null);
     try {
-      const respuesta = await usarPromo(promo.id, ahorro);
+      const respuesta = await usarPromo(promo.id, datos);
       setSumado({ ahorro: respuesta.ahorro, mes: respuesta.mes });
       setPreguntando(false);
     } catch (err) {
@@ -52,12 +65,15 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
 
   function enviarMonto(evento: React.SyntheticEvent<HTMLFormElement>) {
     evento.preventDefault();
-    const numero = Number(monto.trim().replace(',', '.'));
-    if (!Number.isFinite(numero) || numero <= 0) {
-      setError('Escribí cuánto ahorraste, solo con números.');
+    if (!montoValido) {
+      setError(
+        porcentaje !== undefined
+          ? 'Escribí cuánto pagaste, solo con números.'
+          : 'Escribí cuánto ahorraste, solo con números.',
+      );
       return;
     }
-    confirmar(numero);
+    confirmar(porcentaje !== undefined ? { pagado: numero } : { ahorro: numero });
   }
 
   if (sumado) {
@@ -76,7 +92,7 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
       {preguntando ? (
         <form className="detalle-promo__monto" onSubmit={enviarMonto}>
           <label className="detalle-promo__subtitulo" htmlFor="detalle-promo-monto">
-            ¿Cuánto ahorraste?
+            {porcentaje !== undefined ? '¿Cuánto pagaste con la promo?' : '¿Cuánto ahorraste?'}
           </label>
           <div className="detalle-promo__monto-fila">
             <input
@@ -84,7 +100,7 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
               className="detalle-promo__monto-input"
               type="text"
               inputMode="decimal"
-              placeholder="$ 1500"
+              placeholder={porcentaje !== undefined ? '$ 8000' : '$ 1500'}
               autoFocus
               value={monto}
               onChange={(evento) => setMonto(evento.target.value)}
@@ -93,6 +109,13 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
               {enviando ? 'Sumando...' : 'Sumar'}
             </button>
           </div>
+          {porcentaje !== undefined && (
+            <p className="detalle-promo__calculo">
+              {ahorroCalculado !== null
+                ? `Con el ${porcentaje}% ahorraste ${formatearPlata(ahorroCalculado)}`
+                : 'Poné el total del ticket y calculamos lo que ahorraste'}
+            </p>
+          )}
         </form>
       ) : (
         <button

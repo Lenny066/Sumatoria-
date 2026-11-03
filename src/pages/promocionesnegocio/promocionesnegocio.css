@@ -650,3 +650,98 @@
   font-weight: 700;
   color: #1f7a3a;
 }
+
+.editor-promo__modos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 4px;
+  border-radius: 10px;
+  background-color: #f2f2f4;
+}
+
+.editor-promo__modo {
+  padding: 8px 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b6480;
+  cursor: pointer;
+}
+
+.editor-promo__modo--activo {
+  background-color: #ffffff;
+  color: #1c1330;
+  box-shadow: 0 1px 3px rgba(42, 26, 94, 0.12);
+}
+
+.editor-promo__porcentaje {
+  max-width: 140px;
+  margin-bottom: 6px;
+}
+
+.editor-promo__con-sufijo {
+  position: relative;
+  display: block;
+}
+
+.editor-promo__con-sufijo .editor-promo__input {
+  width: 100%;
+  padding-right: 28px;
+}
+
+.editor-promo__sufijo {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b6480;
+  pointer-events: none;
+}
+
+.promo-negocio__cargando-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.editor-promo__guardando {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.editor-promo__ruedita {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: editor-promo-girar 0.7s linear infinite;
+}
+
+.editor-promo__guardar:disabled:has(.editor-promo__guardando) {
+  opacity: 0.85;
+}
+
+@keyframes editor-promo-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-promo__ruedita {
+    animation-duration: 1.6s;
+  }
+}

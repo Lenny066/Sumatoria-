@@ -23,6 +23,7 @@ import {
   type PromoNegocio,
 } from '../../services/miNegocioService';
 import type { Horario, Rubro } from '../../services/negociosService';
+import CargandoMonto from '../../components/CargandoMonto';
 import './perfileditarnegocio.css';
 
 const RUBROS: { rubro: Rubro; etiqueta: string }[] = [
@@ -192,7 +193,7 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
   const [negocio, setNegocio] = useState<MiNegocio | null>(null);
   const [aviso, setAviso] = useState<Aviso>(null);
   const [editandoHorarios, setEditandoHorarios] = useState(false);
-  const [promos, setPromos] = useState<PromoNegocio[]>([]);
+  const [promos, setPromos] = useState<PromoNegocio[] | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const sesionEmpresa = haySesionEmpresa();
@@ -205,7 +206,7 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
       .catch((err) => !cancelado && setErrorCarga(mensajeDeError(err, 'No pudimos cargar tu negocio.')));
     obtenerMisPromos()
       .then((datos) => !cancelado && setPromos(datos))
-      .catch(() => {});
+      .catch(() => !cancelado && setPromos([]));
     return () => {
       cancelado = true;
     };
@@ -429,7 +430,9 @@ export default function PerfilEditarNegocio(): React.JSX.Element {
                 </span>
                 <span className="tu-negocio__dato-textos">
                   <span className="tu-negocio__dato-titulo">Editar promociones</span>
-                  <span className="tu-negocio__dato-resumen">{resumirPromos(promos)}</span>
+                  <span className="tu-negocio__dato-resumen">
+                    {promos === null ? <CargandoMonto ancho="9rem" alto="0.75rem" /> : resumirPromos(promos)}
+                  </span>
                 </span>
                 <ChevronRight size={17} strokeWidth={2.2} />
               </button>

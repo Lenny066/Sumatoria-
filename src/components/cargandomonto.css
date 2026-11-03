@@ -1,0 +1,34 @@
+.cargando-monto {
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 8px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, #ece9f3 0%, #f7f5fb 50%, #ece9f3 100%);
+  background-size: 200% 100%;
+  animation: cargando-monto-brillo 1.3s ease-in-out infinite;
+}
+
+.cargando-monto--clara {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.22) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes cargando-monto-brillo {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cargando-monto {
+    animation: none;
+  }
+}
