@@ -745,3 +745,23 @@
     animation-duration: 1.6s;
   }
 }
+
+.promo-negocio__boton:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.promo-negocio__ruedita {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: editor-promo-girar 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-negocio__ruedita {
+    animation-duration: 1.6s;
+  }
+}

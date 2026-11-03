@@ -533,6 +533,7 @@ export default function PromocionesNegocio(): React.JSX.Element {
   const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [cambiandoEstado, setCambiandoEstado] = useState<string[]>([]);
   const sesionEmpresa = haySesionEmpresa();
 
   useEffect(() => {
@@ -593,7 +594,11 @@ export default function PromocionesNegocio(): React.JSX.Element {
   }
 
   function alternarEstado(promo: PromoNegocio) {
-    actualizar({ ...promo, estado: promo.estado === 'activa' ? 'pausada' : 'activa' });
+    if (cambiandoEstado.includes(promo.id)) return;
+    setCambiandoEstado((actuales) => [...actuales, promo.id]);
+    actualizar({ ...promo, estado: promo.estado === 'activa' ? 'pausada' : 'activa' }).finally(() =>
+      setCambiandoEstado((actuales) => actuales.filter((id) => id !== promo.id)),
+    );
   }
 
   if (!sesionEmpresa) return <Navigate to="/login" replace />;
@@ -657,6 +662,7 @@ export default function PromocionesNegocio(): React.JSX.Element {
           <ul className="promos-negocio__lista">
             {visibles.map((promo) => {
               const activa = promo.estado === 'activa';
+              const cambiando = cambiandoEstado.includes(promo.id);
               const ahorroPromo = ahorroDePromo(promo);
               const detalle = [
                 textoDias(promo.dias),
@@ -709,14 +715,18 @@ export default function PromocionesNegocio(): React.JSX.Element {
                     <button
                       type="button"
                       className={`promo-negocio__boton${activa ? '' : ' promo-negocio__boton--activar'}`}
+                      disabled={cambiando}
+                      aria-busy={cambiando}
                       onClick={() => alternarEstado(promo)}
                     >
-                      {activa ? (
+                      {cambiando ? (
+                        <span className="promo-negocio__ruedita" aria-hidden="true" />
+                      ) : activa ? (
                         <Pause size={13} strokeWidth={2.2} />
                       ) : (
                         <Play size={13} strokeWidth={2.2} />
                       )}
-                      {activa ? 'Pausar' : 'Activar'}
+                      {cambiando ? (activa ? 'Pausando...' : 'Activando...') : activa ? 'Pausar' : 'Activar'}
                     </button>
                   </div>
                 </li>
