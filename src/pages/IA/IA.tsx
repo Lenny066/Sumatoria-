@@ -35,7 +35,7 @@ export default function IA(): React.JSX.Element {
 
   useEffect(() => {
     finRef.current?.scrollIntoView({ block: 'end' });
-  }, [mensajes]);
+  }, [mensajes, esperando]);
 
   // Trae la charla guardada en el back
   useEffect(() => {
@@ -118,6 +118,19 @@ export default function IA(): React.JSX.Element {
             <p className="mensaje__burbuja">{texto}</p>
           </div>
         ))}
+
+        {esperando && (
+          <div className="mensaje mensaje--asistente" role="status" aria-label="El asistente está escribiendo">
+            <span className="mensaje__avatar">
+              <Sparkles size={15} strokeWidth={2.2} />
+            </span>
+            <p className="mensaje__burbuja mensaje__burbuja--escribiendo">
+              <span className="escribiendo__punto" />
+              <span className="escribiendo__punto" />
+              <span className="escribiendo__punto" />
+            </p>
+          </div>
+        )}
 
         <div className="ia__sugerencias">
           {SUGERENCIAS.map(({ id, etiqueta, icono: Icono }) => (

@@ -195,3 +195,45 @@
 .mensaje__burbuja {
   white-space: pre-line;
 }
+
+.mensaje__burbuja--escribiendo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 16px;
+}
+
+.escribiendo__punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #8a82a3;
+  animation: escribiendo-saltar 1.2s ease-in-out infinite;
+}
+
+.escribiendo__punto:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.escribiendo__punto:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes escribiendo-saltar {
+  0%,
+  60%,
+  100% {
+    opacity: 0.4;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escribiendo__punto {
+    animation: none;
+  }
+}
