@@ -487,13 +487,6 @@
   color: #2a1a5e;
 }
 
-.local__logo {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  object-fit: contain;
-  background-color: #ffffff;
-}
 
 .local__marca {
   max-width: 100%;

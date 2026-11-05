@@ -234,3 +234,13 @@
 .perfil__cuerpo .invitado {
   margin-top: -42px;
 }
+
+.perfil__cabecera--invitado {
+  flex-wrap: wrap;
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+
+.perfil__cabecera--invitado .boton-volver {
+  flex-basis: 100%;
+  margin-bottom: 4px;
+}

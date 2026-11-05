@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Barra from '../../components/barra';
 import InvitarCuenta from '../../components/InvitarCuenta';
+import BotonVolver from '../../components/BotonVolver';
 import CargandoMonto from '../../components/CargandoMonto';
 import { cerrarSesion, obtenerIniciales, obtenerUsuario } from '../../services/usuarioService';
 import { AHORRO_VACIO, formatearPlata, obtenerAhorro } from '../../services/ahorroService';
@@ -52,7 +53,8 @@ export default function Perfil(): React.JSX.Element {
     return (
       <div className="perfil">
         <div className="perfil__scroll">
-          <header className="perfil__cabecera">
+          <header className="perfil__cabecera perfil__cabecera--invitado">
+            <BotonVolver />
             <span className="perfil__avatar perfil__avatar--invitado">
               <UserRound size={24} strokeWidth={2} />
             </span>

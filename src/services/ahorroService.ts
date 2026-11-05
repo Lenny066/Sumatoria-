@@ -36,7 +36,7 @@ export async function obtenerAhorro(): Promise<Ahorro> {
   return pedirApi<Ahorro>('/usuario/ahorro');
 }
 
-export type DatosUso = { ahorro?: number; pagado?: number };
+export type DatosUso = { ahorro?: number; sinDescuento?: number };
 
 export async function obtenerAhorroPorMes(): Promise<AhorroMes[]> {
   if (!puedeUsarPromos()) return [];
@@ -66,6 +66,6 @@ export function ahorroDePromo(promo: { precioReal?: number; precioPromo?: number
   return ahorro > 0 ? ahorro : null;
 }
 
-export function ahorroPorPorcentaje(pagado: number, porcentaje: number): number {
-  return Math.round(((pagado * porcentaje) / (100 - porcentaje)) * 100) / 100;
+export function ahorroPorPorcentaje(sinDescuento: number, porcentaje: number): number {
+  return Math.round(((sinDescuento * porcentaje) / 100) * 100) / 100;
 }

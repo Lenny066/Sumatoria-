@@ -111,10 +111,8 @@ function TarjetaPromo({ item: { negocio, promo }, guardada, onAbrir, onGuardar }
     <article className="local local--promo">
       <button type="button" className="local__abrir" onClick={onAbrir}>
         <span className="local__imagen">
-          {promo.imagen ? (
-            <img className="local__foto" src={promo.imagen} alt="" />
-          ) : negocio.logo ? (
-            <img className="local__logo" src={negocio.logo} alt="" />
+          {promo.imagen || negocio.portada || negocio.logo ? (
+            <img className="local__foto" src={promo.imagen || negocio.portada || negocio.logo} alt="" loading="lazy" />
           ) : (
             <span className="local__marca">{negocio.nombre}</span>
           )}
@@ -155,8 +153,8 @@ function TarjetaLocal({ negocio, onAbrir }: { negocio: Negocio; onAbrir: () => v
     <button type="button" className="local local__abrir" onClick={onAbrir}>
       <span className="local__imagen">
         <span className="local__rubro">{negocio.rubro}</span>
-        {negocio.logo ? (
-          <img className="local__logo" src={negocio.logo} alt="" />
+        {negocio.portada || negocio.logo ? (
+          <img className="local__foto" src={negocio.portada || negocio.logo} alt="" loading="lazy" />
         ) : (
           <span className="local__marca">{negocio.nombre}</span>
         )}
@@ -351,7 +349,7 @@ export default function Inicio(): React.JSX.Element {
           <button
             type="button"
             className="tarjeta-banco"
-            onClick={() => navigate(usuario ? '/agregar-tarjeta' : '/registrarse')}
+            onClick={() => navigate(usuario ? '/agregar-tarjeta' : '/perfil')}
           >
             <div className="tarjeta-banco__texto">
               <span className="tarjeta-banco__titulo">

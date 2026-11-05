@@ -216,10 +216,13 @@ export default function Negocio(): React.JSX.Element {
                         onClick={() => setPromoAbierta(idPromo)}
                       >
                         <span className="promo__imagen">
-                          {imagen ? (
-                            <img className="promo__foto" src={imagen} alt="" />
-                          ) : negocio.logo ? (
-                            <img className="promo__logo" src={negocio.logo} alt="" />
+                          {imagen || negocio.portada || negocio.logo ? (
+                            <img
+                              className="promo__foto"
+                              src={imagen || negocio.portada || negocio.logo}
+                              alt=""
+                              loading="lazy"
+                            />
                           ) : (
                             <span className="promo__marca">{negocio.nombre}</span>
                           )}

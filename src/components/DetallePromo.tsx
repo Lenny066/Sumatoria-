@@ -68,12 +68,12 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
     if (!montoValido) {
       setError(
         porcentaje !== undefined
-          ? 'Escribí cuánto pagaste, solo con números.'
+          ? 'Escribí cuánto salía tu compra, solo con números.'
           : 'Escribí cuánto ahorraste, solo con números.',
       );
       return;
     }
-    confirmar(porcentaje !== undefined ? { pagado: numero } : { ahorro: numero });
+    confirmar(porcentaje !== undefined ? { sinDescuento: numero } : { ahorro: numero });
   }
 
   if (sumado) {
@@ -92,7 +92,7 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
       {preguntando ? (
         <form className="detalle-promo__monto" onSubmit={enviarMonto}>
           <label className="detalle-promo__subtitulo" htmlFor="detalle-promo-monto">
-            {porcentaje !== undefined ? '¿Cuánto pagaste con la promo?' : '¿Cuánto ahorraste?'}
+            {porcentaje !== undefined ? '¿Cuánto salía tu compra sin el descuento?' : '¿Cuánto ahorraste?'}
           </label>
           <div className="detalle-promo__monto-fila">
             <input
@@ -100,7 +100,7 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
               className="detalle-promo__monto-input"
               type="text"
               inputMode="decimal"
-              placeholder={porcentaje !== undefined ? '$ 8000' : '$ 1500'}
+              placeholder={porcentaje !== undefined ? '$ 10000' : '$ 1500'}
               autoFocus
               value={monto}
               onChange={(evento) => setMonto(evento.target.value)}
@@ -113,7 +113,7 @@ function UsarPromo({ promo }: { promo: Promocion }): React.JSX.Element {
             <p className="detalle-promo__calculo">
               {ahorroCalculado !== null
                 ? `Con el ${porcentaje}% ahorraste ${formatearPlata(ahorroCalculado)}`
-                : 'Poné el total del ticket y calculamos lo que ahorraste'}
+                : `Poné el total antes del ${porcentaje}% y calculamos lo que ahorraste`}
             </p>
           )}
         </form>
@@ -191,10 +191,12 @@ export default function DetallePromo({
         onClick={(evento) => evento.stopPropagation()}
       >
         <div className="detalle-promo__imagen">
-          {promo.imagen ? (
-            <img className="detalle-promo__foto" src={promo.imagen} alt="" />
-          ) : negocio.logo ? (
-            <img className="detalle-promo__logo" src={negocio.logo} alt="" />
+          {promo.imagen || negocio.portada || negocio.logo ? (
+            <img
+              className="detalle-promo__foto"
+              src={promo.imagen || negocio.portada || negocio.logo}
+              alt=""
+            />
           ) : (
             <Tag size={28} strokeWidth={1.8} />
           )}

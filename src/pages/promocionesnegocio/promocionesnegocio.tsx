@@ -464,7 +464,7 @@ function EditorPromo({ promo, nueva, guardando, onCerrar, onGuardar }: EditorPro
                 <span className="editor-promo__error">{errorPrecios}</span>
               ) : (
                 <span className="editor-promo__ayuda">
-                  Para promos como "20% OFF en todo". Tus clientes ponen cuánto pagaron y se les calcula lo que ahorraron
+                  Para promos como "20% OFF en todo". Tus clientes ponen cuánto salía su compra y se les calcula lo que ahorraron
                 </span>
               )}
             </>
