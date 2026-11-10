@@ -13,7 +13,7 @@ type ItemBarra = {
 const ITEMS: ItemBarra[] = [
   { id: 'inicio', etiqueta: 'Inicio', icono: Home, ruta: '/inicio' },
   { id: 'ia', etiqueta: 'IA', icono: Sparkles, ruta: '/ia' },
-  { id: 'cerca', etiqueta: 'Cerca', icono: MapPin, ruta: '/mapa' },
+  { id: 'cerca', etiqueta: 'Mapa', icono: MapPin, ruta: '/mapa' },
   { id: 'favoritos', etiqueta: 'Favoritos', icono: Bookmark, ruta: '/favoritos' },
   { id: 'perfil', etiqueta: 'Perfil', icono: User, ruta: '/perfil' },
 ];
