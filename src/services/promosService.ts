@@ -99,14 +99,14 @@ export function obtenerMisTarjetas(): TarjetaVinculada[] {
 
 export function sirveConTarjetas(promo: Promocion, tarjetas: TarjetaVinculada[]): boolean {
   if (tarjetas.length === 0 || !promo.mediosPago) return true;
-  return promo.mediosPago.some((medio) =>
-    !esTarjeta(medio)
-      ? medio.tipo === 'efectivo' || medio.tipo === 'transferencia'
-      : tarjetas.some(
-          (tarjeta) =>
-            tarjeta.tipo === medio.tipo &&
-            (!medio.marca || medio.marca === tarjeta.marca) &&
-            (!medio.banco || medio.banco === tarjeta.banco),
-        ),
+  return promo.mediosPago.some(
+    (medio) =>
+      !esTarjeta(medio) ||
+      tarjetas.some(
+        (tarjeta) =>
+          tarjeta.tipo === medio.tipo &&
+          (!medio.marca || medio.marca === tarjeta.marca) &&
+          (!medio.banco || medio.banco === tarjeta.banco),
+      ),
   );
 }
