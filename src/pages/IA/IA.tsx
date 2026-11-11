@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Sparkles, MapPin, Flame, Landmark, ArrowUp } from 'lucide-react';
+import { ChevronLeft, Sparkles, MapPin, Flame, Landmark, ArrowUp, Camera, X } from 'lucide-react';
 import { mensajeDeError } from '../../services/apiService';
 import { enviarMensaje, obtenerChat, type Mensaje } from '../../services/chatService';
 import { obtenerUsuario } from '../../services/usuarioService';
+import { leerImagen } from '../../services/miNegocioService';
 import './IA.css';
 
 const MENSAJES_INICIALES: Mensaje[] = [
@@ -29,9 +30,12 @@ export default function IA(): React.JSX.Element {
   const [mensajes, setMensajes] = useState<Mensaje[]>(MENSAJES_INICIALES);
   const [consulta, setConsulta] = useState<string>('');
   const [esperando, setEsperando] = useState(false);
+  const [foto, setFoto] = useState<string | null>(null);
+  const [errorFoto, setErrorFoto] = useState<string | null>(null);
 
   const finRef = useRef<HTMLDivElement | null>(null);
   const contadorRef = useRef<number>(0);
+  const camaraRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     finRef.current?.scrollIntoView({ block: 'end' });
@@ -49,15 +53,34 @@ export default function IA(): React.JSX.Element {
     };
   }, []);
 
-  async function enviar(texto: string) {
+  async function elegirFoto(evento: React.ChangeEvent<HTMLInputElement>) {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = '';
+    if (!archivo) return;
+    setErrorFoto(null);
+    try {
+      setFoto(await leerImagen(archivo, 1024));
+    } catch {
+      setErrorFoto('No pudimos leer la foto. Probá con otra.');
+    }
+  }
+
+  async function enviar(texto: string, imagen: string | null = null) {
     const limpio = texto.trim();
-    if (!limpio || esperando) return;
+    if ((!limpio && !imagen) || esperando) return;
 
     contadorRef.current += 1;
     const marca = contadorRef.current;
-    const pregunta: Mensaje = { id: `u${marca}`, autor: 'usuario', texto: limpio };
+    const pregunta: Mensaje = {
+      id: `u${marca}`,
+      autor: 'usuario',
+      texto: limpio,
+      ...(imagen ? { imagen } : {}),
+    };
     setMensajes((actuales) => [...actuales, pregunta]);
     setConsulta('');
+    setFoto(null);
+    setErrorFoto(null);
 
     if (!obtenerUsuario()) {
       setMensajes((actuales) => [
@@ -69,7 +92,7 @@ export default function IA(): React.JSX.Element {
 
     setEsperando(true);
     try {
-      const { respuesta } = await enviarMensaje(limpio);
+      const { respuesta } = await enviarMensaje(limpio, imagen ?? undefined);
       setMensajes((actuales) => [...actuales, respuesta]);
     } catch (err) {
       setMensajes((actuales) => [
@@ -108,14 +131,21 @@ export default function IA(): React.JSX.Element {
       </header>
 
       <main className="ia__conversacion">
-        {mensajes.map(({ id, autor, texto }) => (
+        {mensajes.map(({ id, autor, texto, imagen }) => (
           <div key={id} className={`mensaje mensaje--${autor}`}>
             {autor === 'asistente' && (
               <span className="mensaje__avatar">
                 <Sparkles size={15} strokeWidth={2.2} />
               </span>
             )}
-            <p className="mensaje__burbuja">{texto}</p>
+            {imagen ? (
+              <div className="mensaje__burbuja mensaje__burbuja--foto">
+                <img className="mensaje__foto" src={imagen} alt="Foto que mandaste" />
+                {texto && <p className="mensaje__pie">{texto}</p>}
+              </div>
+            ) : (
+              <p className="mensaje__burbuja">{texto}</p>
+            )}
           </div>
         ))}
 
@@ -149,18 +179,54 @@ export default function IA(): React.JSX.Element {
         <div ref={finRef} />
       </main>
 
+      {(foto || errorFoto) && (
+        <div className="ia__adjunto">
+          {foto && (
+            <div className="ia__adjunto-foto">
+              <img src={foto} alt="Foto para mandar" />
+              <button
+                type="button"
+                className="ia__adjunto-quitar"
+                aria-label="Quitar foto"
+                onClick={() => setFoto(null)}
+              >
+                <X size={14} strokeWidth={2.6} />
+              </button>
+            </div>
+          )}
+          {errorFoto && <p className="ia__adjunto-error">{errorFoto}</p>}
+        </div>
+      )}
+
       <form
         className="ia__composer"
         onSubmit={(evento) => {
           evento.preventDefault();
-          enviar(consulta);
+          enviar(consulta, foto);
         }}
       >
+        <input
+          ref={camaraRef}
+          className="ia__camara-input"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={elegirFoto}
+        />
+        <button
+          type="button"
+          className="ia__camara"
+          aria-label="Sacar una foto"
+          disabled={esperando}
+          onClick={() => camaraRef.current?.click()}
+        >
+          <Camera size={20} strokeWidth={2.2} />
+        </button>
         <input
           className="ia__entrada"
           type="text"
           value={consulta}
-          placeholder="Escribí tu consulta..."
+                    placeholder={foto ? 'Contale algo de la foto (opcional)' : 'Escribí tu consulta...'}
           aria-label="Escribí tu consulta"
           onChange={(evento) => setConsulta(evento.target.value)}
         />
@@ -168,7 +234,7 @@ export default function IA(): React.JSX.Element {
           type="submit"
           className="ia__enviar"
           aria-label="Enviar consulta"
-          disabled={consulta.trim().length === 0 || esperando}
+          disabled={(consulta.trim().length === 0 && !foto) || esperando}
         >
           <ArrowUp size={20} strokeWidth={2.4} />
         </button>

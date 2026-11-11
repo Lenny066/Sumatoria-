@@ -237,3 +237,96 @@
     animation: none;
   }
 }
+
+.ia__camara-input {
+  display: none;
+}
+
+.ia__camara {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background-color: #f2f1f6;
+  color: #2a1a5e;
+  cursor: pointer;
+}
+
+.ia__camara:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ia__adjunto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 12px 16px 0;
+  border-top: 1px solid #ece9f4;
+  background-color: #ffffff;
+}
+
+.ia__adjunto + .ia__composer {
+  border-top: none;
+}
+
+.ia__adjunto-foto {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.ia__adjunto-foto img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.ia__adjunto-quitar {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background-color: #2a1a5e;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.ia__adjunto-error {
+  margin: 0;
+  color: #d93a3a;
+  font-size: 0.75rem;
+}
+
+.mensaje__burbuja--foto {
+  padding: 4px;
+  overflow: hidden;
+}
+
+.mensaje__foto {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  max-height: 260px;
+  border-radius: 11px;
+  object-fit: cover;
+}
+
+.mensaje__pie {
+  margin: 0;
+  padding: 7px 10px 6px;
+}
